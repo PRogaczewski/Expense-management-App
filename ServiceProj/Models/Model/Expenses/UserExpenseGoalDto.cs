@@ -10,6 +10,7 @@ namespace ServiceProj.Models.Model.Expenses
 {
     public class UserExpenseGoalDto
     {
+        [Required]
         public int UserExpensesListId { get; set; }
 
         [Required]
