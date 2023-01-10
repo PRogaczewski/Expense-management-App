@@ -1,5 +1,6 @@
 ﻿using ServiceProj.DbService.Expenses;
 using ServiceProj.Models.Model.Expenses;
+using ServiceProj.ValidationService.Exceptions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,7 +22,7 @@ namespace ServiceProj.ValidationService.Expenses
             var models = _service.GetExpensesList(id);
 
             if (models is null)
-                throw new Exception();
+                throw new NotFoundException("Expenses list not found.");
 
             return models;
         }
@@ -29,36 +30,35 @@ namespace ServiceProj.ValidationService.Expenses
         public void CreateExpensesList(UserExpensesModel model)
         {
             if (model is null)
-                throw new Exception();
+                throw new BusinessException("Expense cannot be empty.", 404);
 
             _service.CreateExpensesList(model);
         }
 
-        public void CreateExpensesGoal(UserExpenseGoalDto model)
+        public bool CreateExpensesGoal(UserExpenseGoalDto model)
         {
             if (model is null || model.UserCategoryGoals is null)
-                throw new Exception();
+                throw new BusinessException("Expenses goal cannot be empty.", 404);
 
-            _service.CreateExpensesGoal(model);
+           return _service.CreateExpensesGoal(model);
         }
 
         public UserIncomeDto GetMonthlyIncome(int id, string year, string month)
         {
-            try
-            {
-                if(int.Parse(year) < 1970 || int.Parse(year) > DateTime.Now.Year ||
+            if (int.Parse(year) < 1970 || int.Parse(year) > DateTime.Now.Year ||
                     int.Parse(month) < 1 || int.Parse(month) > 12)
-                    throw new Exception();
-            }
-            catch (Exception)
-            {
-                throw;
-            }
+                throw new BusinessException("Something went wring with date.", 400);
 
             var income = _service.GetMonthlyIncome(id, year, month);
 
             if (income is null)
-                throw new Exception();
+            {
+                income = new UserIncomeDto()
+                {
+                    UserExpensesListId = id,
+                    Income = 0.0m,
+                };
+            }
 
             return income;
         }
@@ -66,9 +66,9 @@ namespace ServiceProj.ValidationService.Expenses
         public void AddMonthlyIncome(UserIncomeModel income)
         {
             if (income.Income < 0)
-                throw new Exception();
+                throw new BusinessException("Income cannot be less than zero.", 404);
 
-            _service.AddMonthlyIncome(income);
+            _service.AddMonthlyIncome(income); 
         }
     }
 }

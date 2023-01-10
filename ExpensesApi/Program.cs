@@ -1,34 +1,15 @@
-using DatabaseProj.DatabaseEntities.ConnectionInfo;
-using Microsoft.EntityFrameworkCore;
-using SeederProj;
-using ServiceProj.AplicationService.Expenses;
-using ServiceProj.AplicationService.ExpensesList;
-using ServiceProj.DbService.Expenses;
-using ServiceProj.DbService.ExpensesList;
-using ServiceProj.Models.Mapper;
-using ServiceProj.ValidationService.Expenses;
-using ServiceProj.ValidationService.ExpensesList;
+using Application;
+using Infrastructure.Dapper;
 
 var builder = WebApplication.CreateBuilder(args);
-
-// Add services to the container.
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddAutoMapper(typeof(ExpensesMapper).Assembly);
 
-builder.Services.AddTransient<IUserExpensesListService, UserExpensesListService>();
-builder.Services.AddTransient<IExpensesListService, ExpensesListService>();
-builder.Services.AddTransient<IExpensesListValidation, ExpensesListValidation>();
+builder.Services.ApplicationRegistrationService();
+builder.Services.InfrastructureRegistrationService(builder.Configuration);
 
-builder.Services.AddTransient<IUserExpensesService, UserExpensesService>();
-builder.Services.AddTransient<IUserExpensesAnalysisService, UserExpensesService>();
-builder.Services.AddTransient<IExpensesService, ExpensesService>();
-builder.Services.AddTransient<IExpensesValidation, ExpensesValidation>();
-builder.Services.AddScoped<IExpensesSeeder, ExpensesSeeder>();
-
-builder.Services.AddDbContext<ExpensesApiDb>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("ExpenseDbString")));
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("ExpenseUi", builder =>

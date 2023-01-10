@@ -1,7 +1,8 @@
-using ExpensesApi.Models.Categories;
+using Application.Dto.Models.ExpensesList;
+using Application.Exceptions;
+using Application.IServices.ExpensesList;
+using ExpensesApi.Models.ErrorHandlers;
 using Microsoft.AspNetCore.Mvc;
-using ServiceProj.AplicationService.ExpensesList;
-using ServiceProj.Models.Model.ExpensesList;
 
 namespace ExpensesApi.Controllers
 {
@@ -9,17 +10,17 @@ namespace ExpensesApi.Controllers
     [Route("[controller]")]
     public class HomeController : ControllerBase
     {
-        private readonly IUserExpensesListService _expensesListService;
+        private readonly IExpensesListService _expensesListService;
 
-        public HomeController(IUserExpensesListService expensesListService)
+        public HomeController(IExpensesListService expensesListService)
         {
             _expensesListService = expensesListService;
         }
 
-        [HttpGet("enum")]
+        [HttpGet("GetCategories")]
         public ActionResult<IEnumerable<string>> GetEnum()
         {
-            var enums = Enum.GetNames(typeof(ExpenseCategories));
+            var enums = _expensesListService.GetCategories();
 
             return Ok(enums);
         }
@@ -27,42 +28,79 @@ namespace ExpensesApi.Controllers
         [HttpGet]
         public ActionResult<IEnumerable<UserExpensesListDtoList>> Home()
         {
-           var expensesLists = _expensesListService.GetExpensesLists();
-
-            return Ok(expensesLists);
+            try
+            {
+                var expensesLists = _expensesListService.GetExpensesLists();
+                return Ok(expensesLists);
+            }
+            catch (NotFoundException ex)
+            {
+                return NotFound(new ErrorHandler(ex.Message));
+            }
         }
 
         [HttpGet("{id}")]
         public ActionResult GetList(int id)
         {
-            var expensesList = _expensesListService.GetExpensesList(id);
+            try
+            {
+                var expensesList = _expensesListService.GetExpensesList(id);
 
-            return Ok(expensesList);
+                return Ok(expensesList);
+            }
+            catch (NotFoundException ex)
+            {
+                return NotFound(new ErrorHandler(ex.Message));
+            }
         }
 
         [HttpPost]
         public ActionResult Create(UserExpensesListModel model)
         {
-            _expensesListService.CreateExpensesList(model);
+            try
+            {
+                _expensesListService.CreateExpensesList(model);
 
-            return Ok();
+                return Ok();
+            }
+            catch (BusinessException ex)
+            {
+                return Conflict(new ErrorHandler(ex.Message));
+            }
         }
 
         [HttpPut("{id}")]
         public ActionResult Update(UserExpensesListModel model, int id)
         {
-            _expensesListService.UpdateExpensesList(model, id);
+            try
+            {
+                _expensesListService.UpdateExpensesList(model, id);
 
-            return Ok();
+                return Ok();
+            }
+            catch (BusinessException ex)
+            {
+                return Conflict(new ErrorHandler(ex.Message));
+            }
+            catch (NotFoundException ex) 
+            {
+                return NotFound(new ErrorHandler(ex.Message));
+            }
         }
 
         [HttpDelete("{id}")]
         public ActionResult Delete(int id)
         {
-            _expensesListService.DeleteExpensesList(id);
+            try
+            {
+                _expensesListService.DeleteExpensesList(id);
 
-            return Ok();
+                return Ok();
+            }
+            catch (NotFoundException ex)
+            {
+                return NotFound(new ErrorHandler(ex.Message));
+            }
         }
-
     }
 }

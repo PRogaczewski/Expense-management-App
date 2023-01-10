@@ -1,9 +1,10 @@
 ﻿using AutoMapper;
-using DatabaseProj.DatabaseEntities.ConnectionInfo;
 using DatabaseProj.DatabaseEntities.Models;
+using Domain.DomainCore;
 using Microsoft.EntityFrameworkCore;
 using SeederProj;
 using ServiceProj.Models.Model.ExpensesList;
+using ServiceProj.ValidationService.Exceptions;
 
 namespace ServiceProj.DbService.ExpensesList
 {
@@ -54,7 +55,7 @@ namespace ServiceProj.DbService.ExpensesList
 
         public void CreateExpensesList(UserExpensesListModel model)
         {
-            if (model.Name.Contains("seeder"))
+            if (model.Name.ToLower().Contains("seeder"))
             {
                 if (!_context.ExpensesLists.Any(e => e.Name == model.Name))
                 {
@@ -79,7 +80,7 @@ namespace ServiceProj.DbService.ExpensesList
                 .FirstOrDefault(m => m.Id == id);
 
             if (editModel is null)
-                throw new Exception();
+                throw new NotFoundException("User list not found.");
 
             editModel.Name = model.Name;
             editModel.UpdateDate = DateTime.Now;

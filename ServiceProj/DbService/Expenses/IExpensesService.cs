@@ -13,7 +13,7 @@ namespace ServiceProj.DbService.Expenses
 
         public void CreateExpensesList(UserExpensesModel model);
 
-        public void CreateExpensesGoal(UserExpenseGoalDto model);
+        public bool CreateExpensesGoal(UserExpenseGoalDto model);
 
         public UserIncomeDto GetMonthlyIncome(int id, string year, string month);
 

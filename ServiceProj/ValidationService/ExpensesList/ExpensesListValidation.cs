@@ -1,5 +1,6 @@
 ﻿using ServiceProj.DbService.ExpensesList;
 using ServiceProj.Models.Model.ExpensesList;
+using ServiceProj.ValidationService.Exceptions;
 
 namespace ServiceProj.ValidationService.ExpensesList
 {
@@ -17,9 +18,7 @@ namespace ServiceProj.ValidationService.ExpensesList
             var models = _expensesListService.GetExpensesLists();
 
             if (models == null)
-            {
-                throw new Exception();
-            }
+                throw new NotFoundException("Expenses lists not found.");
 
             return models;
         }
@@ -29,9 +28,7 @@ namespace ServiceProj.ValidationService.ExpensesList
             var model = _expensesListService.GetExpensesList(id);
 
             if (model == null)
-            {
-                throw new Exception();
-            }
+                throw new NotFoundException("Expenses list not found.");
 
             return model;
         }
@@ -41,7 +38,7 @@ namespace ServiceProj.ValidationService.ExpensesList
             var checkName = GetExpensesLists().FirstOrDefault(x => x.Name == model.Name);
 
             if (checkName != null)
-                throw new Exception();
+                throw new BusinessException("List with this name exists.", 409);
 
             _expensesListService.CreateExpensesList(model);
         }
@@ -49,10 +46,10 @@ namespace ServiceProj.ValidationService.ExpensesList
         public void UpdateExpensesList(UserExpensesListModel model, int id)
         {
             if (model is null)
-                throw new Exception();
+                throw new BusinessException("Expenses list cannot be empty.", 404);
 
             if (GetExpensesLists().FirstOrDefault(x => x.Id == id) is null || GetExpensesLists().FirstOrDefault(x => x.Name == model.Name) != null)
-                throw new Exception();
+                throw new BusinessException("Current list already exists.", 409);
 
             _expensesListService.UpdateExpensesList(model, id);
         }
@@ -60,7 +57,7 @@ namespace ServiceProj.ValidationService.ExpensesList
         public void DeleteExpensesList(int id)
         {
             if (_expensesListService.GetExpensesList(id) is null)
-                throw new Exception();
+                throw new NotFoundException("Current expenses list can not be found.");
 
             _expensesListService.DeleteExpensesList(id);
         }

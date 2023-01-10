@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using DatabaseProj.Database.Models;
-using DatabaseProj.DatabaseEntities.ConnectionInfo;
 using DatabaseProj.DatabaseEntities.Models;
+using Domain.DomainCore;
 using Microsoft.EntityFrameworkCore;
 using ServiceProj.Models.Model.Expenses;
 using System;
@@ -45,14 +45,30 @@ namespace ServiceProj.DbService.Expenses
             _context.SaveChanges();
         }
 
-        public void CreateExpensesGoal(UserExpenseGoalDto model)
+        public bool CreateExpensesGoal(UserExpenseGoalDto model)
         {
             var result = _mapper.Map<UserExpenseGoal>(model);
 
-            result.CreateDate = DateTime.Now;
+            bool IsAnySameCategory = false;
 
-            _context.UserExpensesGoals.Add(result);
-            _context.SaveChanges();
+            foreach (var userGoal in result.UserCategoryGoals)
+            {
+                var test = _context.UserExpensesGoals.Where(u => u.MonthChosenForGoal == result.MonthChosenForGoal && u.UserExpensesListId == result.UserExpensesListId).ToList();
+
+                IsAnySameCategory = test.Any(u => u.UserCategoryGoals.Any(c => c.Category == userGoal.Category));
+            }
+
+            if (!IsAnySameCategory)
+            {
+                result.CreateDate = DateTime.Now;
+
+                _context.UserExpensesGoals.Add(result);
+                _context.SaveChanges();
+
+                return true;
+            }
+
+            return false;
         }
 
         public UserIncomeDto GetMonthlyIncome(int id, string year, string month)
@@ -82,15 +98,6 @@ namespace ServiceProj.DbService.Expenses
 
                 _context.UserIncomes.Add(newIncome);
             }
-
-            //if (currentMonthIncomes.CreatedDate.Month == DateTime.Now.Month)
-            //{
-                
-            //}
-            //else
-            //{
-                
-            //}
 
             _context.SaveChanges();
         }

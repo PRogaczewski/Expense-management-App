@@ -1,4 +1,4 @@
-﻿namespace ExpensesApi.Models.Categories
+﻿namespace Domain.Categories
 {
     public enum ExpenseCategories
     {

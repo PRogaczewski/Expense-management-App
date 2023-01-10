@@ -1,9 +1,11 @@
-﻿using ExpensesApi.Models.Categories;
+﻿using Application.Dto.Models.Expenses;
+using Application.Exceptions;
+using Application.IServices.AnalysisService;
+using Application.IServices.Expenses;
+using Application.IServices.ExpensesList;
+using ExpensesApi.Models.ErrorHandlers;
+using ExpensesApi.Models.ViewModels;
 using Microsoft.AspNetCore.Mvc;
-using ServiceProj.AplicationService.Expenses;
-using ServiceProj.AplicationService.ExpensesList;
-using ServiceProj.Models.AnalysisModels;
-using ServiceProj.Models.Model.Expenses;
 
 namespace ExpensesApi.Controllers
 {
@@ -11,13 +13,13 @@ namespace ExpensesApi.Controllers
     [Route("[controller]")]
     public class ExpensesListController : Controller
     {
-        private readonly IUserExpensesService _service;
+        private readonly IExpensesService _service;
 
-        private readonly IUserExpensesListService _expensesListService;
+        private readonly IExpensesListService _expensesListService;
 
         private readonly IUserExpensesAnalysisService _analysisService;
 
-        public ExpensesListController(IUserExpensesService service, IUserExpensesAnalysisService analysisService, IUserExpensesListService expensesListService)
+        public ExpensesListController(IExpensesService service, IUserExpensesAnalysisService analysisService, IExpensesListService expensesListService)
         {
             _service = service;
             _analysisService = analysisService;
@@ -25,20 +27,20 @@ namespace ExpensesApi.Controllers
         }
 
         [HttpGet("{id}")]
-        public ActionResult<HomeResultModel> Home(int id)
+        public ActionResult<MainExpensesViewModel> Home(int id)
         {
             var incomes = _analysisService.TotalIncomesMonth(id, DateTime.Now.Year.ToString(), DateTime.Now.Month.ToString());
             var outgoings = _analysisService.TotalExpensesMonth(id, DateTime.Now.Year.ToString(), DateTime.Now.Month.ToString());
             var totalByCategories = _analysisService.ExpensesByCategoryMonth(id, DateTime.Now.Year.ToString(), DateTime.Now.Month.ToString()).ToDictionary(k => k.Key, v => v.Value);
             var currentWeekByCategories = _analysisService.ExpensesByCategoryCurrentWeek(id, DateTime.Now.Year.ToString(), DateTime.Now.Month.ToString());    
 
-            var result = new HomeResultModel();
+            var result = new MainExpensesViewModel();
 
             if (DateTime.Now.Day >= 25)
             {
                 var compareToLastMonth = _analysisService.CompareByCategoryMonth(id, DateTime.Now.Year.ToString(), DateTime.Now.Year.ToString(), DateTime.Now.Month.ToString(), (DateTime.Now.Month - 1).ToString());
 
-                result = new HomeResultModelCompare()
+                result = new ComparedDateExpensesViewModel()
                 {
                     CompareLastMonthByCategories = compareToLastMonth
                 };
@@ -48,7 +50,7 @@ namespace ExpensesApi.Controllers
             {
                 var userGoals = _analysisService.MonthlyGoals(id, DateTime.Now.Year.ToString(), DateTime.Now.Month.ToString());
 
-                result = new HomeResultModelGoals()
+                result = new UserGoalsExpensesViewModel()
                 {
                     UserGoals = userGoals[0],
                     UserExpenses = userGoals[1],
@@ -69,20 +71,35 @@ namespace ExpensesApi.Controllers
         [HttpGet("TotalInMonth/{id}")]
         public ActionResult GetMonthTotal(int id, string? year, string month)
         {
-            if (string.IsNullOrEmpty(year))
-                year = DateTime.Now.Year.ToString();
+            try
+            {
+                if (string.IsNullOrEmpty(year))
+                    year = DateTime.Now.Year.ToString();
 
-            var total = _analysisService.TotalExpensesMonth(id, year, month);
+                var total = _analysisService.TotalExpensesMonth(id, year, month);
 
-            return Ok(total);
+                return Ok(total);
+            }
+            catch (BusinessException ex)
+            {
+                return NotFound(new ErrorHandler(ex.Message));
+            }
+           
         }
 
         [HttpGet("TotalInYear/{id}")]
         public ActionResult GetMonthTotal(int id, string year)
         {
-            var total = _analysisService.TotalExpensesYear(id, year);
+            try
+            {
+                var total = _analysisService.TotalExpensesYear(id, year);
 
-            return Ok(total);
+                return Ok(total);
+            }
+            catch (BusinessException ex)
+            {
+                return NotFound(new ErrorHandler(ex.Message));
+            } 
         }
 
         [HttpGet("TotalInMonthByCategories/{id}")]
@@ -129,24 +146,40 @@ namespace ExpensesApi.Controllers
         [HttpPost]
         public ActionResult Create(UserExpensesModel model)
         {
-            _service.CreateExpensesList(model);
+            try
+            {
+                _service.CreateExpense(model);
 
-            return Ok();
+                return Ok();
+            }
+            catch (BusinessException ex)
+            {
+                return NotFound(new ErrorHandler(ex.Message));
+            }
+            
         }
 
         [HttpPost("ExpensesMonthlyGoal")]
         public ActionResult CreateMonthlyGoal(UserExpenseGoalDto model)
         {
-            _service.CreateExpensesGoal(model);
+            try
+            {
+                bool isSuccessfully = _service.CreateExpensesGoal(model);
 
-            return Ok();
+                return Ok(isSuccessfully);
+            }
+            catch (BusinessException ex)
+            {
+                return NotFound(new ErrorHandler(ex.Message));
+            }
+           
         }
 
         [HttpGet("ExpensesMonthlyGoal/{id}")]
         public ActionResult GetMonthlyGoal(int id, string year, string month)
         {
             if (!_expensesListService.GetExpensesList(id).UserGoals.Any())
-                return NotFound();
+                return NotFound(new ErrorHandler("User goals for current month not found."));
 
             var total = _analysisService.MonthlyGoals(id, year, month).ToList();
 
@@ -156,9 +189,16 @@ namespace ExpensesApi.Controllers
         [HttpPost("UserIncome")]
         public ActionResult AddIncome(UserIncomeModel model)
         {
-            _service.AddMonthlyIncome(model);
+            try
+            {
+                _service.AddMonthlyIncome(model);
 
-            return Ok();
+                return Ok();
+            }
+            catch (BusinessException ex)
+            {
+                return NotFound(new ErrorHandler(ex.Message));
+            }
         }
     }
 }
