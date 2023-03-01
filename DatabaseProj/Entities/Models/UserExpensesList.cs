@@ -1,5 +1,4 @@
 ﻿using Domain.Entities.Base;
-using System.ComponentModel.DataAnnotations;
 
 namespace Domain.Entities.Models
 {
@@ -12,6 +11,10 @@ namespace Domain.Entities.Models
         public List<UserExpenseGoal> UserGoals { get; set; } = new List<UserExpenseGoal>();
 
         public List<UserIncome> UserIncomes { get; set; } = new List<UserIncome>();
+
+        public int UserApplicationId;
+
+        public UserApplication UserApplication;
 
         public DateTime CreatedDate { get; set; }
 

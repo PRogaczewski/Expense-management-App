@@ -17,6 +17,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Application\Application.csproj" />
+    <ProjectReference Include="..\Infrastructure.Authentication\Infrastructure.Authentication.csproj" />
     <ProjectReference Include="..\Infrastructure.Dapper\Infrastructure.Dapper.csproj" />
     <ProjectReference Include="..\Infrastructure\Infrastructure.EF.csproj" />
   </ItemGroup>

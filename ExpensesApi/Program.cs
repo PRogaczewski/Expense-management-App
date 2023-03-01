@@ -1,14 +1,47 @@
 using Application;
-using Infrastructure.Dapper;
+using Application.Authentication;
+using Infrastructure.Authentication;
+using Infrastructure.EF;
+using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Name = "Authorization",
+        In = ParameterLocation.Header,
+        Type = SecuritySchemeType.ApiKey,
+        Scheme = "Bearer"
+    });
+
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement()
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                },
+                Scheme = "oauth2",
+                Name = "Bearer",
+                In = ParameterLocation.Header,
+
+            },
+            new List<string>()
+        }
+    });
+});
 
 builder.Services.ApplicationRegistrationService();
 builder.Services.InfrastructureRegistrationService(builder.Configuration);
+builder.Services.InfrastructureAuthenticationRegistrationService(builder.Configuration);
+builder.Services.ApplicationAuthenticationRegistrationService(builder.Configuration);
 
 builder.Services.AddCors(options =>
 {
@@ -30,6 +63,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseCors("ExpenseUi");
+
+app.UseAuthentication();
 
 app.UseHttpsRedirection();
 

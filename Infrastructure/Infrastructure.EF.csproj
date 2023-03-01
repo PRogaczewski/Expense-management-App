@@ -21,4 +21,8 @@
     <ProjectReference Include="..\SeedData\Infrastructure.SeedData.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Migrations\" />
+  </ItemGroup>
+
 </Project>

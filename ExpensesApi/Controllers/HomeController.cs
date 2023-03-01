@@ -2,10 +2,12 @@ using Application.Dto.Models.ExpensesList;
 using Application.Exceptions;
 using Application.IServices.ExpensesList;
 using ExpensesApi.Models.ErrorHandlers;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ExpensesApi.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("[controller]")]
     public class HomeController : ControllerBase

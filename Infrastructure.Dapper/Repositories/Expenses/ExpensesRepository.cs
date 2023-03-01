@@ -23,12 +23,8 @@ namespace Infrastructure.Dapper.Repositories.Expenses
             {
                 using (var connection = new SqlConnection(_connectionString))
                 {
-                    SqlTransaction transaction = connection.BeginTransaction();
-
                     connection.Execute("INSERT INTO Expenses (Category, Price, UserExpensesListId, CreatedDate) VALUES (@category, @price, @userExpensesListId, @createdDate)",
                         new { category = model.Category, price = model.Price, userExpensesListId = model.UserExpensesListId, createdDate = DateTime.Now });
-
-                    transaction.Commit();
                 }
             }
             catch (Exception ex)
@@ -43,14 +39,11 @@ namespace Infrastructure.Dapper.Repositories.Expenses
             {
                 using (var conn = new SqlConnection(_connectionString))
                 {
-                    SqlTransaction transaction = conn.BeginTransaction();
+                    var listId = conn.QuerySingle<int>("INSERT INTO UserExpensesGoals (UserExpensesListId, MonthChosenForGoal, CreatedDate) OUTPUT INSERTED.Id VALUES (@userExpensesListId, @monthChosenForGoal, @createDate)",
+                       new { userExpensesListId = model.UserExpensesListId, monthChosenForGoal = model.MonthChosenForGoal, createDate = DateTime.Now });
 
-                    var listId = conn.QuerySingle<int>("INSERT INTO UserExpensesGoals (UserExpensesListId, MonthChosenForGoal, CreatedDate) OUTPUT INSERTED.Id VALUES (@userExpensesListId, @userCategoryGoals, @monthChosenForGoal, @createDate)",
-                        new { userExpensesListId = model.UserExpensesListId, monthChosenForGoal = model.MonthChosenForGoal, createDate = DateTime.Now });
-
-                    conn.Execute("INSERT INTO UserGoals (UserExpenseGoalId, Category, Limit) VALUES (@userExpenseGoalId, @category, @limit)", model.UserCategoryGoals.Select(g => new { userExpenseGoalId = listId, category = g.Category, limit = g.Limit }));
-
-                    transaction.Commit();
+                    conn.Execute("INSERT INTO UserGoals (UserExpenseGoalId, Category, Limit) VALUES (@userExpenseGoalId, @category, @limit)",
+                        model.UserCategoryGoals.Select(g => new { userExpenseGoalId = listId, category = g.Category, limit = g.Limit }));
                 }
 
                 return true;
@@ -88,9 +81,7 @@ namespace Infrastructure.Dapper.Repositories.Expenses
             {
                 using (var conn = new SqlConnection(_connectionString))
                 {
-                    var currentIncome = conn.Query<UserIncome>("SELECT * FROM UserIncomes WHERE UserExpensesListId = @id AND WHERE MONTH(CreatedDate) = @month", new {id = income.UserExpensesListId, month = DateTime.Now.Month}).FirstOrDefault();
-
-                    SqlTransaction transaction = conn.BeginTransaction();
+                    var currentIncome = conn.Query<UserIncome>("SELECT * FROM UserIncomes WHERE UserExpensesListId = @id AND WHERE MONTH(CreatedDate) = @month", new { id = income.UserExpensesListId, month = DateTime.Now.Month }).FirstOrDefault();
 
                     if (currentIncome != null)
                     {
@@ -105,7 +96,6 @@ namespace Infrastructure.Dapper.Repositories.Expenses
                             new { userExpensesListId = income.UserExpensesListId, income = income.Income, createdDate = DateTime.Now });
                     }
 
-                    transaction.Commit();
                 }
             }
             catch (Exception ex)

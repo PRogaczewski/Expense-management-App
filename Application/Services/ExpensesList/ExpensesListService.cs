@@ -37,7 +37,6 @@ namespace Application.Services.ExpensesList
         {
             var userExpensesList = _expensesListModule.GetExpensesList(id);
 
-
             var result = _mapper.Map<UserExpensesListDtoModel>(userExpensesList);
 
             return result;

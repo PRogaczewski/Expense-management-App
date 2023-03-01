@@ -31,5 +31,20 @@ namespace Infrastructure.EF.Database
         /// Db for user incomes
         /// </summary>
         public DbSet<UserIncome> UserIncomes { get; set; }
+
+        /// <summary>
+        /// User db
+        /// </summary>
+        public DbSet<UserApplication> Users { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<UserApplication>(e =>
+            {
+                e.HasMany(w => w.ExpensesLists)
+                .WithOne(c => c.UserApplication)
+                .HasForeignKey(c => c.UserApplicationId);
+            });
+        }
     }
 }
