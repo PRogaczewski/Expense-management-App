@@ -1,4 +1,4 @@
-﻿using Domain.Categories;
+﻿using Application.Dto.Models.ExpensesList;
 
 namespace Application.IServices.AnalysisService
 {
@@ -6,31 +6,20 @@ namespace Application.IServices.AnalysisService
     {
         public decimal TotalIncomesMonth(int id, string year, string month);
 
-        public decimal TotalExpensesMonth(int id, string year, string month);
+        public decimal TotalExpensesMonth(int id, string year, string month, UserExpensesListDtoModel model = null);
 
-        public decimal TotalExpensesYear(int id, string year);
+        public decimal TotalExpensesYear(int id, string year, UserExpensesListDtoModel model = null);
 
-        //public IDictionary<ExpenseCategories, decimal> ExpensesByCategoryCurrentWeek(int id, string year, string month);
+        public IDictionary<string, decimal> ExpensesByCategoryCurrentWeek(int id, string year, string month, UserExpensesListDtoModel model = null);
 
-        //public IDictionary<ExpenseCategories, decimal> ExpensesByCategoryMonth(int id, string year, string month);
+        public IDictionary<string, decimal> ExpensesByCategoryMonth(int id, string year, string month, UserExpensesListDtoModel model = null);
 
-        //public IDictionary<ExpenseCategories, decimal> ExpensesByCategoryYear(int id, string year);
+        public IDictionary<string, decimal> ExpensesByCategoryYear(int id, string year, UserExpensesListDtoModel models = null);
 
-        //public IDictionary<ExpenseCategories, decimal> CompareByCategoryMonth(int id, string firstYear, string secondYear, string firstMonth, string secondMonth);
+        public IDictionary<string, decimal> CompareByCategoryMonth(int id, string firstYear, string secondYear, string firstMonth, string secondMonth, UserExpensesListDtoModel model = null);
 
-        //public IDictionary<ExpenseCategories, decimal> CompareByCategoryYear(int id, string firstYear, string secondYear);
+        public IDictionary<string, decimal> CompareByCategoryYear(int id, string firstYear, string secondYear, UserExpensesListDtoModel model = null);
 
-        //public IDictionary<ExpenseCategories, decimal>[] MonthlyGoals(int id, string year, string month);
-        public IDictionary<string, decimal> ExpensesByCategoryCurrentWeek(int id, string year, string month);
-
-        public IDictionary<string, decimal> ExpensesByCategoryMonth(int id, string year, string month);
-
-        public IDictionary<string, decimal> ExpensesByCategoryYear(int id, string year);
-
-        public IDictionary<string, decimal> CompareByCategoryMonth(int id, string firstYear, string secondYear, string firstMonth, string secondMonth);
-
-        public IDictionary<string, decimal> CompareByCategoryYear(int id, string firstYear, string secondYear);
-
-        public IDictionary<string, decimal>[] MonthlyGoals(int id, string year, string month);
+        public IDictionary<string, decimal>[] MonthlyGoals(int id, string year, string month, UserExpensesListDtoModel model = null);
     }
 }

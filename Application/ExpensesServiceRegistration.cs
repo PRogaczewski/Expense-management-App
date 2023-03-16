@@ -16,6 +16,7 @@ namespace Application
             services.AddTransient<IExpensesService, ExpensesService>();
             services.AddTransient<IExpensesListService, ExpensesListService>();
             services.AddTransient<IUserExpensesAnalysisService, UserExpensesAnalysisService>();
+            services.AddTransient<IUserInitialData, UserInitialDataFacade>();
 
             return services;
         }

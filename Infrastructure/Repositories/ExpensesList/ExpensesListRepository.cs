@@ -36,13 +36,13 @@ namespace Infrastructure.EF.Repositories.ExpensesList
                 throw new BusinessException("Something went wrong...", 404);
 
             var models = _context.ExpensesLists
-                .Include(e => e.Expenses)
-                .OrderByDescending(o => o.CreatedDate.Year)
-                .ThenByDescending(o => o.CreatedDate.Month)
-                .Include(e=>e.UserGoals)
-                .ThenInclude(u => u.UserCategoryGoals)
-                .OrderBy(e => e.CreatedDate)
-                .Include(e=>e.UserIncomes)
+                //.Include(e => e.Expenses)
+                //.OrderByDescending(o => o.CreatedDate.Year)
+                //.ThenByDescending(o => o.CreatedDate.Month)
+                //.Include(e=>e.UserGoals)
+                //.ThenInclude(u => u.UserCategoryGoals)
+                //.OrderBy(e => e.CreatedDate)
+                //.Include(e=>e.UserIncomes)
                 .Where(e => e.UserApplicationId == userId);
 
             if (models is null)

@@ -1,16 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Domain.Categories
+﻿namespace Domain.Categories
 {
     public interface ICategoryService
     {
         public IEnumerable<string> GetExpenseCategories()
         {
-            return Enum.GetNames(typeof(ExpenseCategories));
+            var categories = new List<string>();
+
+            foreach (Enum item in Enum.GetValues(typeof(ExpenseCategories)))
+            {
+                categories.Add(item.GetEnumDisplayName());
+            }
+
+            return categories;
         }
     }
 }

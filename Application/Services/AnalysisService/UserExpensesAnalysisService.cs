@@ -1,4 +1,5 @@
 ﻿using Application.Dto.Models.Expenses;
+using Application.Dto.Models.ExpensesList;
 using Application.Exceptions;
 using Application.IServices.AnalysisService;
 using Application.IServices.Expenses;
@@ -20,49 +21,99 @@ namespace Application.Services.AnalysisService
         }
 
         #region ExpensesAnalysis
-        public IDictionary<string, decimal> ExpensesByCategoryCurrentWeek(int id, string year, string month)
+        public IDictionary<string, decimal> ExpensesByCategoryCurrentWeek(int id, string year, string month, UserExpensesListDtoModel model = null)
         {
             var currentDay = DateTime.Now.Day;
+
+            int monthEnding;
+            int weekEnding;
+
+            int monthBegining;
             int weekBegining;
 
-            if (DateTime.Now.DayOfWeek == 0)
+            if ((int)DateTime.Now.DayOfWeek == 0)
                 weekBegining = DateTime.Today.AddDays(-1 * (int)DateTime.Today.DayOfWeek - 6).Day;
             else
                 weekBegining = DateTime.Today.AddDays(-1 * (int)DateTime.Today.DayOfWeek + 1).Day;
 
+            if (weekBegining > currentDay)
+            {
+                monthBegining = DateTime.Now.Month - 1;
+                monthEnding = DateTime.Now.Month;
+            }
+            else
+            {
+                monthBegining = DateTime.Now.Month;
+                monthEnding = DateTime.Now.Month;
+            }
 
-            var models = _expensesListService.GetExpensesList(id).Expenses
-                .Where(e => e.CreatedDate.Year.ToString() == year && e.CreatedDate.Month.ToString() == month && e.CreatedDate.Day >= weekBegining && e.CreatedDate.Day <= currentDay)
-                .ToList();
+            weekEnding = new DateTime(int.Parse(year), monthBegining, weekBegining).AddDays(6).Day;
+
+            //if(weekEnding > weekBegining || currentDay >= 0)
+            //{
+            //    monthEnding += 1;
+            //} 
+
+            var beginDate = new DateTime(int.Parse(year), monthBegining, weekBegining);
+            var endDate = new DateTime(int.Parse(year), monthEnding, weekEnding);
+
+            //var models = _expensesListService.GetExpensesList(id).Expenses
+            //    .Where(e => e.CreatedDate.Year.ToString() == year &&
+            //    //                e.CreatedDate.Month.ToString() == month || e.CreatedDate.Month.ToString() == monthBegining.ToString() && e.CreatedDate.Day >= weekBegining && e.CreatedDate.Day <= weekEnding)
+            //    .ToList();
+
+            if(model == null)
+            {
+                model = _expensesListService.GetExpensesList(id);
+            }
+
+            var models = model.Expenses
+               .Where(e => e.CreatedDate >= beginDate && e.CreatedDate <= endDate)
+               .ToList();
 
             return ExpensesByCategory(id, models);
         }
 
-        public IDictionary<string, decimal> ExpensesByCategoryMonth(int id, string year, string month)
+        public IDictionary<string, decimal> ExpensesByCategoryMonth(int id, string year, string month, UserExpensesListDtoModel model = null)
         {
-            var models = _expensesListService.GetExpensesList(id).Expenses
+            if (model == null)
+            {
+                model = _expensesListService.GetExpensesList(id);
+            }
+
+            var models = model.Expenses
                 .Where(e => e.CreatedDate.Year.ToString() == year && e.CreatedDate.Month.ToString() == month)
                 .ToList();
 
             return ExpensesByCategory(id, models);
         }
 
-        public IDictionary<string, decimal> ExpensesByCategoryYear(int id, string year)
+        public IDictionary<string, decimal> ExpensesByCategoryYear(int id, string year, UserExpensesListDtoModel model = null)
         {
-            var models = _expensesListService.GetExpensesList(id).Expenses
+            if (model == null)
+            {
+                model = _expensesListService.GetExpensesList(id);
+            }
+
+            var models = model.Expenses
                     .Where(e => e.CreatedDate.Year.ToString() == year)
                     .ToList();
 
             return ExpensesByCategory(id, models);
         }
 
-        public IDictionary<string, decimal> CompareByCategoryMonth(int id, string firstYear, string secondYear, string firstMonth, string secondMonth)
+        public IDictionary<string, decimal> CompareByCategoryMonth(int id, string firstYear, string secondYear, string firstMonth, string secondMonth, UserExpensesListDtoModel model = null)
         {
-            var firstMonthModels = _expensesListService.GetExpensesList(id).Expenses
+            if (model == null)
+            {
+                model = _expensesListService.GetExpensesList(id);
+            }
+
+            var firstMonthModels = model.Expenses
                 .Where(e => e.CreatedDate.Year.ToString() == firstYear && e.CreatedDate.Month.ToString() == firstMonth)
                 .ToList();
 
-            var secondMonthModels = _expensesListService.GetExpensesList(id).Expenses
+            var secondMonthModels = model.Expenses
                 .Where(e => e.CreatedDate.Year.ToString() == secondYear && e.CreatedDate.Month.ToString() == secondMonth)
                 .ToList();
 
@@ -72,13 +123,18 @@ namespace Application.Services.AnalysisService
             return CompareByCategory(firstMonthResult, secondMonthResult);
         }
 
-        public IDictionary<string, decimal> CompareByCategoryYear(int id, string firstYear, string secondYear)
+        public IDictionary<string, decimal> CompareByCategoryYear(int id, string firstYear, string secondYear, UserExpensesListDtoModel model = null)
         {
-            var firstYearModels = _expensesListService.GetExpensesList(id).Expenses
+            if (model == null)
+            {
+                model = _expensesListService.GetExpensesList(id);
+            }
+
+            var firstYearModels = model.Expenses
                 .Where(e => e.CreatedDate.Year.ToString() == firstYear)
                 .ToList();
 
-            var secondYearModels = _expensesListService.GetExpensesList(id).Expenses
+            var secondYearModels = model.Expenses
                 .Where(e => e.CreatedDate.Year.ToString() == secondYear)
                 .ToList();
 
@@ -88,17 +144,22 @@ namespace Application.Services.AnalysisService
             return CompareByCategory(firstYearResult, secondYearResult);
         }
 
-        public IDictionary<string, decimal>[] MonthlyGoals(int id, string year, string month)
+        public IDictionary<string, decimal>[] MonthlyGoals(int id, string year, string month, UserExpensesListDtoModel model = null)
         {
             var currentDate = month + year;
 
-            var currentGoals = _expensesListService.
-                GetExpensesList(id).UserGoals.
-                Where(g => g.MonthChosenForGoal.Month.ToString() + g.MonthChosenForGoal.Year.ToString() == currentDate)
+            if (model == null)
+            {
+                model = _expensesListService.GetExpensesList(id);
+            }
+
+            var currentGoals = model.UserGoals
+                .Where(g => g.MonthChosenForGoal.Month.ToString() + g.MonthChosenForGoal.Year.ToString() == currentDate)
                 .Where(g => g.UserExpensesListId == id)
                 .ToList();
 
             IDictionary<string, decimal> currentMonthGoal = new Dictionary<string, decimal>();
+            //poprawic zwracanie nazw kategorii
 
             foreach (var goalsList in currentGoals)
             {
@@ -142,39 +203,49 @@ namespace Application.Services.AnalysisService
             return income.Income;
         }
 
-        public decimal TotalExpensesMonth(int id, string year, string month)
+        public decimal TotalExpensesMonth(int id, string year, string month, UserExpensesListDtoModel model = null)
         {
-            return GetTotalPrice(id, year, month);
+            if (model == null)
+            {
+                model = _expensesListService.GetExpensesList(id);
+            }
+
+            return GetTotalPrice(id, year, model, month);
         }
 
-        public decimal TotalExpensesYear(int id, string year)
+        public decimal TotalExpensesYear(int id, string year, UserExpensesListDtoModel model = null)
         {
-            return GetTotalPrice(id, year);
+            if (model == null)
+            {
+                model = _expensesListService.GetExpensesList(id);
+            }
+
+            return GetTotalPrice(id, year, model);
         }
 
-        private decimal GetTotalPrice(int id, string year, string? month = null)
+        private decimal GetTotalPrice(int id, string year, UserExpensesListDtoModel model, string? month = null)
         {
-            List<UserExpensesDto> models = null;
+            List<UserExpensesDto> results;
 
             if (string.IsNullOrEmpty(month))
             {
-                models = _expensesListService.GetExpensesList(id).Expenses
+                results = model.Expenses
                     .Where(e => e.CreatedDate.Year.ToString() == year)
                     .ToList();
             }
             else
             {
-                models = _expensesListService.GetExpensesList(id).Expenses
+                results = model.Expenses
                     .Where(e => e.CreatedDate.Year.ToString() == year && e.CreatedDate.Month.ToString() == month)
                     .ToList();
             }
 
-            if (models is null)
+            if (!results.Any())
                 throw new BusinessException("Error occured during getting expenses.", 404);
 
             decimal totalSum = 0.0m;
 
-            foreach (var expense in models)
+            foreach (var expense in results)
             {
                 totalSum += expense.Price;
             }
@@ -201,7 +272,7 @@ namespace Application.Services.AnalysisService
             }
 
             return totalByCategories.OrderByDescending(t => t.Value)
-                .ToDictionary(t => t.Key.ToString(), t => t.Value);
+                .ToDictionary(t => t.Key.GetEnumDisplayName().ToString(), t => t.Value);
         }
 
         private IDictionary<string, decimal> CompareByCategory(IDictionary<string, decimal> firstMonthResult, IDictionary<string, decimal> secondMonthResult)

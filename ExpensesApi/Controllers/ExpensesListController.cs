@@ -1,10 +1,10 @@
 ﻿using Application.Dto.Models.Expenses;
+using Application.Dto.Models.ExpensesList;
 using Application.Exceptions;
 using Application.IServices.AnalysisService;
 using Application.IServices.Expenses;
 using Application.IServices.ExpensesList;
 using ExpensesApi.Models.ErrorHandlers;
-using ExpensesApi.Models.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ExpensesApi.Controllers
@@ -19,53 +19,65 @@ namespace ExpensesApi.Controllers
 
         private readonly IUserExpensesAnalysisService _analysisService;
 
-        public ExpensesListController(IExpensesService service, IUserExpensesAnalysisService analysisService, IExpensesListService expensesListService)
+        private readonly IUserInitialData _userInitialData;
+
+        public ExpensesListController(IExpensesService service, IUserExpensesAnalysisService analysisService, IExpensesListService expensesListService, IUserInitialData userInitialData)
         {
             _service = service;
             _analysisService = analysisService;
             _expensesListService = expensesListService;
+            _userInitialData = userInitialData;
         }
 
         [HttpGet("{id}")]
-        public ActionResult<MainExpensesViewModel> Home(int id)
+        public ActionResult<UserExpensesListResponse> Home(int id)
         {
-            var incomes = _analysisService.TotalIncomesMonth(id, DateTime.Now.Year.ToString(), DateTime.Now.Month.ToString());
-            var outgoings = _analysisService.TotalExpensesMonth(id, DateTime.Now.Year.ToString(), DateTime.Now.Month.ToString());
-            var totalByCategories = _analysisService.ExpensesByCategoryMonth(id, DateTime.Now.Year.ToString(), DateTime.Now.Month.ToString()).ToDictionary(k => k.Key, v => v.Value);
-            var currentWeekByCategories = _analysisService.ExpensesByCategoryCurrentWeek(id, DateTime.Now.Year.ToString(), DateTime.Now.Month.ToString());    
+            //var incomes = _analysisService.TotalIncomesMonth(id, DateTime.Now.Year.ToString(), DateTime.Now.Month.ToString());
+            //var outgoings = _analysisService.TotalExpensesMonth(id, DateTime.Now.Year.ToString(), DateTime.Now.Month.ToString());
+            //var totalByCategories = _analysisService.ExpensesByCategoryMonth(id, DateTime.Now.Year.ToString(), DateTime.Now.Month.ToString()).ToDictionary(k => k.Key, v => v.Value);
+            //var currentWeekByCategories = _analysisService.ExpensesByCategoryCurrentWeek(id, DateTime.Now.Year.ToString(), DateTime.Now.Month.ToString());    
 
-            var result = new MainExpensesViewModel();
+            //var result = new MainExpensesViewModel();
 
-            if (DateTime.Now.Day >= 25)
+            //if (DateTime.Now.Day >= 25)
+            //{
+            //    var compareToLastMonth = _analysisService.CompareByCategoryMonth(id, DateTime.Now.Year.ToString(), DateTime.Now.Year.ToString(), DateTime.Now.Month.ToString(), (DateTime.Now.Month - 1).ToString());
+
+            //    result = new ComparedDateExpensesViewModel()
+            //    {
+            //        CompareLastMonthByCategories = compareToLastMonth
+            //    };
+            //}
+
+            //if (_expensesListService.GetExpensesList(id).UserGoals.Exists(u=>u.MonthChosenForGoal.Month.ToString() + u.MonthChosenForGoal.Year.ToString()==DateTime.Now.Month.ToString() + DateTime.Now.Year.ToString()))
+            //{
+            //    var userGoals = _analysisService.MonthlyGoals(id, DateTime.Now.Year.ToString(), DateTime.Now.Month.ToString());
+
+            //    result = new UserGoalsExpensesViewModel()
+            //    {
+            //        UserGoals = userGoals[0],
+            //        UserExpenses = userGoals[1],
+            //        Result = userGoals[2],
+            //    };
+            //}
+
+
+            //result.Incomes = incomes;
+            //result.Outgoings = outgoings;
+            //result.MonthlyResult = incomes - outgoings;
+            //result.TotalMonthByCategories = totalByCategories;
+            //result.CurrentWeekByCategories = currentWeekByCategories;
+            try
             {
-                var compareToLastMonth = _analysisService.CompareByCategoryMonth(id, DateTime.Now.Year.ToString(), DateTime.Now.Year.ToString(), DateTime.Now.Month.ToString(), (DateTime.Now.Month - 1).ToString());
+                var result = _userInitialData.GetUserInitialData(id);
 
-                result = new ComparedDateExpensesViewModel()
-                {
-                    CompareLastMonthByCategories = compareToLastMonth
-                };
+                return Ok(result);
             }
-
-            if (_expensesListService.GetExpensesList(id).UserGoals.Exists(u=>u.MonthChosenForGoal.Month.ToString() + u.MonthChosenForGoal.Year.ToString()==DateTime.Now.Month.ToString() + DateTime.Now.Year.ToString()))
+            catch (Exception ex)
             {
-                var userGoals = _analysisService.MonthlyGoals(id, DateTime.Now.Year.ToString(), DateTime.Now.Month.ToString());
-
-                result = new UserGoalsExpensesViewModel()
-                {
-                    UserGoals = userGoals[0],
-                    UserExpenses = userGoals[1],
-                    Result = userGoals[2],
-                };
+                return NotFound(new ErrorHandler(ex.Message));
             }
-
-
-            result.Incomes = incomes;
-            result.Outgoings = outgoings;
-            result.MonthlyResult = incomes - outgoings;
-            result.TotalMonthByCategories = totalByCategories;
-            result.CurrentWeekByCategories = currentWeekByCategories;
-
-            return Ok(result);
+           
         }
 
         [HttpGet("TotalInMonth/{id}")]
@@ -178,10 +190,10 @@ namespace ExpensesApi.Controllers
         [HttpGet("ExpensesMonthlyGoal/{id}")]
         public ActionResult GetMonthlyGoal(int id, string year, string month)
         {
-            if (!_expensesListService.GetExpensesList(id).UserGoals.Any())
-                return NotFound(new ErrorHandler("User goals for current month not found."));
-
             var total = _analysisService.MonthlyGoals(id, year, month).ToList();
+
+            if (!total.Any())
+                return NotFound(new ErrorHandler("User goals for current month not found."));
 
             return Ok(total);
         }
