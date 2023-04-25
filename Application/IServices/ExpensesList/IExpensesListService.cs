@@ -4,16 +4,16 @@ namespace Application.IServices.ExpensesList
 { 
     public interface IExpensesListService
     {
-        public IEnumerable<string> GetCategories();
+        IEnumerable<string> GetCategories();
 
-        public IEnumerable<UserExpensesListDtoList> GetExpensesLists();
+        Task<IEnumerable<UserExpensesListDtoList>> GetExpensesLists();
 
-        public UserExpensesListDtoModel GetExpensesList(int id);
+        Task<UserExpensesListDtoModel> GetExpensesList(int id);
 
-        public void CreateExpensesList(UserExpensesListModel model);
+        Task CreateExpensesList(UserExpensesListModel model);
 
-        public void UpdateExpensesList(UserExpensesListModel model, int id);
+        Task UpdateExpensesList(UserExpensesListModel model, int id);
 
-        public void DeleteExpensesList(int id);
+        Task DeleteExpensesList(int id);
     }
 }

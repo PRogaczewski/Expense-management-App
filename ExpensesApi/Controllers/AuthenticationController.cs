@@ -18,11 +18,11 @@ namespace ExpensesApi.Controllers
         }
 
         [HttpPost("/Login")]
-        public ActionResult SignIn(AuthenticationRequest model)
+        public async Task<ActionResult> SignIn(AuthenticationRequest model)
         {
             try
             {
-                var response = _authenticationService.SignIn(model);
+                var response = await _authenticationService.SignIn(model);
 
                 return Ok(response);
             }
@@ -33,14 +33,14 @@ namespace ExpensesApi.Controllers
         }
 
         [HttpPost("/Register")]
-        public ActionResult Register(RegistrationRequest model)
+        public async Task<ActionResult> Register(RegistrationRequest model)
         {
             if(model.Password != model.ConfirmedPassword)
                 return BadRequest("Passwords must be the same.");
 
             try
             {
-                var response = _authenticationService.Register(model);
+                var response = await _authenticationService.Register(model);
 
                 return Ok(response);
             }

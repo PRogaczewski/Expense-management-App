@@ -1,5 +1,6 @@
 using Application;
 using Application.Authentication;
+using ExpensesApi.Models.Mapper.Home;
 using Infrastructure.Authentication;
 using Infrastructure.EF;
 using Microsoft.OpenApi.Models;
@@ -42,6 +43,7 @@ builder.Services.ApplicationRegistrationService();
 builder.Services.InfrastructureRegistrationService(builder.Configuration);
 builder.Services.InfrastructureAuthenticationRegistrationService(builder.Configuration);
 builder.Services.ApplicationAuthenticationRegistrationService(builder.Configuration);
+builder.Services.AddAutoMapper(typeof(HomeModelsMapper).Assembly);
 
 builder.Services.AddCors(options =>
 {

@@ -4,14 +4,12 @@ namespace Application.IServices.Expenses
 {
     public interface IExpensesService
     {
-        //public UserExpensesDto GetExpensesList(int id);
+        Task CreateExpense(UserExpensesModel model);
 
-        public void CreateExpense(UserExpensesModel model);
+        Task<bool> CreateExpensesGoal(UserExpenseGoalDto model);
 
-        public bool CreateExpensesGoal(UserExpenseGoalDto model);
+        Task<UserIncomeDto> GetMonthlyIncome(int id, string year, string month);
 
-        public UserIncomeDto GetMonthlyIncome(int id, string year, string month);
-
-        public void AddMonthlyIncome(UserIncomeModel income);
+        Task AddMonthlyIncome(UserIncomeModel income);
     }
 }

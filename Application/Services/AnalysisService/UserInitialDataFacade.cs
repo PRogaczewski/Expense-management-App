@@ -16,21 +16,17 @@ namespace Application.Services.AnalysisService
             _expensesListService = expensesListService;
         }
 
-        public UserExpensesListResponse GetUserInitialData(int id)
+        public async Task<UserExpensesListResponse> GetUserInitialData(int id)
         {
-            var model = _expensesListService.GetExpensesList(id);
+            var model = await _expensesListService.GetExpensesList(id);
 
-            var incomes = _analysisService.TotalIncomesMonth(id, DateTime.Now.Year.ToString(), DateTime.Now.Month.ToString());
-            var outgoings = _analysisService.TotalExpensesMonth(id, DateTime.Now.Year.ToString(), DateTime.Now.Month.ToString(), model);
-            var totalByCategories = _analysisService.ExpensesByCategoryMonth(id, DateTime.Now.Year.ToString(), DateTime.Now.Month.ToString(), model).ToDictionary(k => k.Key, v => v.Value);
-            var currentWeekByCategories = _analysisService.ExpensesByCategoryCurrentWeek(id, DateTime.Now.Year.ToString(), DateTime.Now.Month.ToString(), model);
-            var userGoals = _analysisService.MonthlyGoals(id, DateTime.Now.Year.ToString(), DateTime.Now.Month.ToString(), model);
-            IDictionary<string, decimal> compareToLastMonth = new Dictionary<string, decimal>();
+            var incomes = await _analysisService.TotalIncomesMonth(id, DateTime.Now.Year.ToString(), DateTime.Now.Month.ToString());
+            var outgoings = await _analysisService.TotalExpensesMonth(id, DateTime.Now.Year.ToString(), DateTime.Now.Month.ToString(), model);
+            var totalByCategories = (await _analysisService.ExpensesByCategoryMonth(id, DateTime.Now.Year.ToString(), DateTime.Now.Month.ToString(), model)).ToDictionary(k => k.Key, v => v.Value);
+            var currentWeekByCategories = await _analysisService.ExpensesByCategoryCurrentWeek(id, DateTime.Now.Year.ToString(), DateTime.Now.Month.ToString(), model);
+            var userGoals = await _analysisService.MonthlyGoals(id, DateTime.Now.Year.ToString(), DateTime.Now.Month.ToString(), model);
 
-            if (DateTime.Now.Day >= 26)
-            {
-                compareToLastMonth = _analysisService.CompareByCategoryMonth(id, DateTime.Now.Year.ToString(), DateTime.Now.Year.ToString(), DateTime.Now.Month.ToString(), (DateTime.Now.Month - 1).ToString(), model);
-            }
+            var compareToLastMonth = await _analysisService.CompareByCategoryMonth(id, DateTime.Now.Year.ToString(), DateTime.Now.Year.ToString(), DateTime.Now.Month.ToString(), (DateTime.Now.Month - 1).ToString(), model);
 
             return new UserExpensesListResponse
             {

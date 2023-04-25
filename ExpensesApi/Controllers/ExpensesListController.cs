@@ -1,10 +1,11 @@
 ﻿using Application.Dto.Models.Expenses;
-using Application.Dto.Models.ExpensesList;
 using Application.Exceptions;
 using Application.IServices.AnalysisService;
 using Application.IServices.Expenses;
 using Application.IServices.ExpensesList;
+using AutoMapper;
 using ExpensesApi.Models.ErrorHandlers;
+using ExpensesApi.Models.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ExpensesApi.Controllers
@@ -15,63 +16,31 @@ namespace ExpensesApi.Controllers
     {
         private readonly IExpensesService _service;
 
-        private readonly IExpensesListService _expensesListService;
+        //private readonly IExpensesListService _expensesListService;
 
         private readonly IUserExpensesAnalysisService _analysisService;
 
         private readonly IUserInitialData _userInitialData;
 
-        public ExpensesListController(IExpensesService service, IUserExpensesAnalysisService analysisService, IExpensesListService expensesListService, IUserInitialData userInitialData)
+        private readonly IMapper _mapper;
+
+        public ExpensesListController(IExpensesService service, IUserExpensesAnalysisService analysisService, IExpensesListService expensesListService, IUserInitialData userInitialData, IMapper mapper)
         {
             _service = service;
             _analysisService = analysisService;
-            _expensesListService = expensesListService;
+            //_expensesListService = expensesListService;
             _userInitialData = userInitialData;
+            _mapper = mapper;
         }
 
         [HttpGet("{id}")]
-        public ActionResult<UserExpensesListResponse> Home(int id)
+        public async Task<ActionResult<UserExpensesSummaryViewModel>> Home(int id)
         {
-            //var incomes = _analysisService.TotalIncomesMonth(id, DateTime.Now.Year.ToString(), DateTime.Now.Month.ToString());
-            //var outgoings = _analysisService.TotalExpensesMonth(id, DateTime.Now.Year.ToString(), DateTime.Now.Month.ToString());
-            //var totalByCategories = _analysisService.ExpensesByCategoryMonth(id, DateTime.Now.Year.ToString(), DateTime.Now.Month.ToString()).ToDictionary(k => k.Key, v => v.Value);
-            //var currentWeekByCategories = _analysisService.ExpensesByCategoryCurrentWeek(id, DateTime.Now.Year.ToString(), DateTime.Now.Month.ToString());    
-
-            //var result = new MainExpensesViewModel();
-
-            //if (DateTime.Now.Day >= 25)
-            //{
-            //    var compareToLastMonth = _analysisService.CompareByCategoryMonth(id, DateTime.Now.Year.ToString(), DateTime.Now.Year.ToString(), DateTime.Now.Month.ToString(), (DateTime.Now.Month - 1).ToString());
-
-            //    result = new ComparedDateExpensesViewModel()
-            //    {
-            //        CompareLastMonthByCategories = compareToLastMonth
-            //    };
-            //}
-
-            //if (_expensesListService.GetExpensesList(id).UserGoals.Exists(u=>u.MonthChosenForGoal.Month.ToString() + u.MonthChosenForGoal.Year.ToString()==DateTime.Now.Month.ToString() + DateTime.Now.Year.ToString()))
-            //{
-            //    var userGoals = _analysisService.MonthlyGoals(id, DateTime.Now.Year.ToString(), DateTime.Now.Month.ToString());
-
-            //    result = new UserGoalsExpensesViewModel()
-            //    {
-            //        UserGoals = userGoals[0],
-            //        UserExpenses = userGoals[1],
-            //        Result = userGoals[2],
-            //    };
-            //}
-
-
-            //result.Incomes = incomes;
-            //result.Outgoings = outgoings;
-            //result.MonthlyResult = incomes - outgoings;
-            //result.TotalMonthByCategories = totalByCategories;
-            //result.CurrentWeekByCategories = currentWeekByCategories;
             try
             {
-                var result = _userInitialData.GetUserInitialData(id);
+                var result = await _userInitialData.GetUserInitialData(id);
 
-                return Ok(result);
+                return Ok(_mapper.Map<UserExpensesSummaryViewModel>(result));
             }
             catch (Exception ex)
             {
@@ -81,16 +50,16 @@ namespace ExpensesApi.Controllers
         }
 
         [HttpGet("TotalInMonth/{id}")]
-        public ActionResult GetMonthTotal(int id, string? year, string month)
+        public async Task<ActionResult<ExpensesListValueViewModel>> GetMonthTotal(int id, string? year, string month)
         {
             try
             {
                 if (string.IsNullOrEmpty(year))
                     year = DateTime.Now.Year.ToString();
 
-                var total = _analysisService.TotalExpensesMonth(id, year, month);
+                var total = await _analysisService.TotalExpensesMonth(id, year, month);
 
-                return Ok(total);
+                return Ok(ExpensesListValueViewModel.CreateViewModel(total));
             }
             catch (BusinessException ex)
             {
@@ -100,13 +69,13 @@ namespace ExpensesApi.Controllers
         }
 
         [HttpGet("TotalInYear/{id}")]
-        public ActionResult GetMonthTotal(int id, string year)
+        public async Task<ActionResult<ExpensesListValueViewModel>> GetYearTotal(int id, string year)
         {
             try
             {
-                var total = _analysisService.TotalExpensesYear(id, year);
+                var total = await _analysisService.TotalExpensesYear(id, year);
 
-                return Ok(total);
+                return Ok(ExpensesListValueViewModel.CreateViewModel(total));
             }
             catch (BusinessException ex)
             {
@@ -115,7 +84,7 @@ namespace ExpensesApi.Controllers
         }
 
         [HttpGet("TotalInMonthByCategories/{id}")]
-        public ActionResult GetMonthTotalByCategories(int id, string? year, string? month)
+        public async Task<ActionResult> GetMonthTotalByCategories(int id, string? year, string? month)
         {
             if (string.IsNullOrEmpty(year))
                 year = DateTime.Now.Year.ToString();
@@ -123,44 +92,72 @@ namespace ExpensesApi.Controllers
             if (string.IsNullOrEmpty(month))
                 month = DateTime.Now.Year.ToString();
 
-            var total = _analysisService.ExpensesByCategoryMonth(id, year, month).ToDictionary(k => k.Key, v => v.Value);
+            try
+            {
+                var total = (await _analysisService.ExpensesByCategoryMonth(id, year, month)).ToDictionary(k => k.Key, v => v.Value);
 
-            return Ok(total);
+                return Ok(total);
+            }
+            catch (Exception ex)
+            {
+                return NotFound(new ErrorHandler(ex.Message));
+            }
         }
 
         [HttpGet("TotalInYearByCategories/{id}")]
-        public ActionResult GetYearTotalByCategories(int id, string? year)
+        public async Task<IActionResult> GetYearTotalByCategories(int id, string? year)
         {
             if (string.IsNullOrEmpty(year))
                 year = DateTime.Now.Year.ToString();
 
-            var total = _analysisService.ExpensesByCategoryYear(id, year).ToDictionary(k => k.Key, v => v.Value);
+            try
+            {
+                var total = (await _analysisService.ExpensesByCategoryYear(id, year)).ToDictionary(k => k.Key, v => v.Value);
 
-            return Ok(total);
+                return Ok(total);
+            }
+            catch (Exception ex)
+            {
+                return NotFound(new ErrorHandler(ex.Message));
+            }
         }
 
         [HttpGet("CompareMonths/{id}")]
-        public ActionResult GetCompareMonths(int id, string firstYear, string secondYear, string firstMonth, string secondMonth)
-        {
-            var total = _analysisService.CompareByCategoryMonth(id, firstYear, secondYear, firstMonth, secondMonth).ToDictionary(k => k.Key, v => v.Value);
-
-            return Ok(total);
-        }
-
-        [HttpGet("CompareYears/{id}")]
-        public ActionResult GetCompareYears(int id, string firstYear, string secondYear)
-        {
-            var total = _analysisService.CompareByCategoryYear(id, firstYear, secondYear).ToDictionary(k => k.Key, v => v.Value);
-
-            return Ok(total);
-        }
-
-        [HttpPost]
-        public ActionResult Create(UserExpensesModel model)
+        public async Task<ActionResult> GetCompareMonths(int id, string firstYear, string secondYear, string firstMonth, string secondMonth)
         {
             try
             {
-                _service.CreateExpense(model);
+                var total = (await _analysisService.CompareByCategoryMonth(id, firstYear, secondYear, firstMonth, secondMonth)).ToDictionary(k => k.Key, v => v.Value);
+
+                return Ok(total);
+            }
+            catch (Exception ex)
+            {
+                return NotFound(new ErrorHandler(ex.Message));
+            }
+        }
+
+        [HttpGet("CompareYears/{id}")]
+        public async Task<ActionResult> GetCompareYears(int id, string firstYear, string secondYear)
+        {
+            try
+            {
+                var total = (await _analysisService.CompareByCategoryYear(id, firstYear, secondYear)).ToDictionary(k => k.Key, v => v.Value);
+
+                return Ok(total);
+            }
+            catch (Exception ex)
+            {
+                return NotFound(new ErrorHandler(ex.Message)); ;
+            }
+        }
+
+        [HttpPost]
+        public async Task<ActionResult> Create(UserExpensesModel model)
+        {
+            try
+            {
+                await _service.CreateExpense(model);
 
                 return Ok();
             }
@@ -172,11 +169,11 @@ namespace ExpensesApi.Controllers
         }
 
         [HttpPost("ExpensesMonthlyGoal")]
-        public ActionResult CreateMonthlyGoal(UserExpenseGoalDto model)
+        public async Task<ActionResult> CreateMonthlyGoal(UserExpenseGoalDto model)
         {
             try
             {
-                bool isSuccessfully = _service.CreateExpensesGoal(model);
+                bool isSuccessfully = await _service.CreateExpensesGoal(model);
 
                 return Ok(isSuccessfully);
             }
@@ -188,22 +185,29 @@ namespace ExpensesApi.Controllers
         }
 
         [HttpGet("ExpensesMonthlyGoal/{id}")]
-        public ActionResult GetMonthlyGoal(int id, string year, string month)
-        {
-            var total = _analysisService.MonthlyGoals(id, year, month).ToList();
-
-            if (!total.Any())
-                return NotFound(new ErrorHandler("User goals for current month not found."));
-
-            return Ok(total);
-        }
-
-        [HttpPost("UserIncome")]
-        public ActionResult AddIncome(UserIncomeModel model)
+        public async Task<ActionResult> GetMonthlyGoal(int id, string year, string month)
         {
             try
             {
-                _service.AddMonthlyIncome(model);
+                var total = (await _analysisService.MonthlyGoals(id, year, month)).ToDictionary(k => k.Keys, v => v.Values);
+
+                if (!total.Any())
+                    return NotFound(new ErrorHandler("User goals for current month not found."));
+
+                return Ok(total);
+            }
+            catch (Exception ex)
+            {
+                return NotFound(new ErrorHandler(ex.Message));
+            }
+        }
+
+        [HttpPost("UserIncome")]
+        public async Task<ActionResult> AddIncome(UserIncomeModel model)
+        {
+            try
+            {
+                await _service.AddMonthlyIncome(model);
 
                 return Ok();
             }

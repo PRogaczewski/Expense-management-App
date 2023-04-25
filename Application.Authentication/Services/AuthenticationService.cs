@@ -29,11 +29,11 @@ namespace Application.Authentication.Services
             _authenticationManager = authenticationManager;
         }
 
-        public AuthenticationResponse SignIn(AuthenticationRequest model)
+        public async Task<AuthenticationResponse> SignIn(AuthenticationRequest model)
         {
             var user = _mapper.Map<UserApplication>(model);
 
-            var response = _authenticationModule.SignIn(user);
+            var response = await _authenticationModule.SignIn(user);
 
             if (response == null)
                 throw new BusinessException("Something went wrong...", 404);
@@ -43,11 +43,11 @@ namespace Application.Authentication.Services
             return new AuthenticationResponse() { Name = response.Name, Token = token };
         }
 
-        public RegistrationResponse Register(RegistrationRequest model)
+        public async Task<RegistrationResponse> Register(RegistrationRequest model)
         {
             var user = _mapper.Map<UserApplication>(model);
 
-            var response = _authenticationModule.Register(user);
+            var response = await _authenticationModule.Register(user);
 
             if(response == null)
                 throw new BusinessException("Something went wrong...", 404);

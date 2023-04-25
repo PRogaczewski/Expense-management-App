@@ -21,7 +21,7 @@ namespace Application.Services.AnalysisService
         }
 
         #region ExpensesAnalysis
-        public IDictionary<string, decimal> ExpensesByCategoryCurrentWeek(int id, string year, string month, UserExpensesListDtoModel model = null)
+        public async Task<IDictionary<string, decimal>> ExpensesByCategoryCurrentWeek(int id, string year, string month, UserExpensesListDtoModel model = null)
         {
             var currentDay = DateTime.Now.Day;
 
@@ -49,22 +49,12 @@ namespace Application.Services.AnalysisService
 
             weekEnding = new DateTime(int.Parse(year), monthBegining, weekBegining).AddDays(6).Day;
 
-            //if(weekEnding > weekBegining || currentDay >= 0)
-            //{
-            //    monthEnding += 1;
-            //} 
-
             var beginDate = new DateTime(int.Parse(year), monthBegining, weekBegining);
             var endDate = new DateTime(int.Parse(year), monthEnding, weekEnding);
 
-            //var models = _expensesListService.GetExpensesList(id).Expenses
-            //    .Where(e => e.CreatedDate.Year.ToString() == year &&
-            //    //                e.CreatedDate.Month.ToString() == month || e.CreatedDate.Month.ToString() == monthBegining.ToString() && e.CreatedDate.Day >= weekBegining && e.CreatedDate.Day <= weekEnding)
-            //    .ToList();
-
             if(model == null)
             {
-                model = _expensesListService.GetExpensesList(id);
+                model = await _expensesListService.GetExpensesList(id);
             }
 
             var models = model.Expenses
@@ -74,11 +64,11 @@ namespace Application.Services.AnalysisService
             return ExpensesByCategory(id, models);
         }
 
-        public IDictionary<string, decimal> ExpensesByCategoryMonth(int id, string year, string month, UserExpensesListDtoModel model = null)
+        public async Task<IDictionary<string, decimal>> ExpensesByCategoryMonth(int id, string year, string month, UserExpensesListDtoModel model = null)
         {
             if (model == null)
             {
-                model = _expensesListService.GetExpensesList(id);
+                model = await _expensesListService.GetExpensesList(id);
             }
 
             var models = model.Expenses
@@ -88,11 +78,11 @@ namespace Application.Services.AnalysisService
             return ExpensesByCategory(id, models);
         }
 
-        public IDictionary<string, decimal> ExpensesByCategoryYear(int id, string year, UserExpensesListDtoModel model = null)
+        public async Task<IDictionary<string, decimal>> ExpensesByCategoryYear(int id, string year, UserExpensesListDtoModel model = null)
         {
             if (model == null)
             {
-                model = _expensesListService.GetExpensesList(id);
+                model = await _expensesListService.GetExpensesList(id);
             }
 
             var models = model.Expenses
@@ -102,11 +92,11 @@ namespace Application.Services.AnalysisService
             return ExpensesByCategory(id, models);
         }
 
-        public IDictionary<string, decimal> CompareByCategoryMonth(int id, string firstYear, string secondYear, string firstMonth, string secondMonth, UserExpensesListDtoModel model = null)
+        public async Task<IDictionary<string, decimal>> CompareByCategoryMonth(int id, string firstYear, string secondYear, string firstMonth, string secondMonth, UserExpensesListDtoModel model = null)
         {
             if (model == null)
             {
-                model = _expensesListService.GetExpensesList(id);
+                model = await _expensesListService.GetExpensesList(id);
             }
 
             var firstMonthModels = model.Expenses
@@ -123,11 +113,11 @@ namespace Application.Services.AnalysisService
             return CompareByCategory(firstMonthResult, secondMonthResult);
         }
 
-        public IDictionary<string, decimal> CompareByCategoryYear(int id, string firstYear, string secondYear, UserExpensesListDtoModel model = null)
+        public async Task<IDictionary<string, decimal>> CompareByCategoryYear(int id, string firstYear, string secondYear, UserExpensesListDtoModel model = null)
         {
             if (model == null)
             {
-                model = _expensesListService.GetExpensesList(id);
+                model = await _expensesListService.GetExpensesList(id);
             }
 
             var firstYearModels = model.Expenses
@@ -144,13 +134,13 @@ namespace Application.Services.AnalysisService
             return CompareByCategory(firstYearResult, secondYearResult);
         }
 
-        public IDictionary<string, decimal>[] MonthlyGoals(int id, string year, string month, UserExpensesListDtoModel model = null)
+        public async Task<IDictionary<string, decimal>[]> MonthlyGoals(int id, string year, string month, UserExpensesListDtoModel model = null)
         {
             var currentDate = month + year;
 
             if (model == null)
             {
-                model = _expensesListService.GetExpensesList(id);
+                model = await _expensesListService.GetExpensesList(id);
             }
 
             var currentGoals = model.UserGoals
@@ -176,7 +166,7 @@ namespace Application.Services.AnalysisService
                 }
             }
 
-            var currentMonthExpenses = ExpensesByCategoryMonth(id, year, month);
+            var currentMonthExpenses = await ExpensesByCategoryMonth(id, year, month);
             var categories = currentMonthGoal.Keys.Intersect(currentMonthExpenses.Keys);
 
             IDictionary<string, decimal> currentMonthResult = new Dictionary<string, decimal>();
@@ -196,28 +186,28 @@ namespace Application.Services.AnalysisService
             return new IDictionary<string, decimal>[] { currentMonthGoal, currentMonthGoalExpenses, currentMonthResult };
         }
 
-        public decimal TotalIncomesMonth(int id, string year, string month)
+        public async Task<decimal> TotalIncomesMonth(int id, string year, string month)
         {
-            var income = _expensesService.GetMonthlyIncome(id, year, month);
+            var income = await _expensesService.GetMonthlyIncome(id, year, month);
 
             return income.Income;
         }
 
-        public decimal TotalExpensesMonth(int id, string year, string month, UserExpensesListDtoModel model = null)
+        public async Task<decimal> TotalExpensesMonth(int id, string year, string month, UserExpensesListDtoModel model = null)
         {
             if (model == null)
             {
-                model = _expensesListService.GetExpensesList(id);
+                model = await _expensesListService.GetExpensesList(id);
             }
 
             return GetTotalPrice(id, year, model, month);
         }
 
-        public decimal TotalExpensesYear(int id, string year, UserExpensesListDtoModel model = null)
+        public async Task<decimal> TotalExpensesYear(int id, string year, UserExpensesListDtoModel model = null)
         {
             if (model == null)
             {
-                model = _expensesListService.GetExpensesList(id);
+                model = await _expensesListService.GetExpensesList(id);
             }
 
             return GetTotalPrice(id, year, model);

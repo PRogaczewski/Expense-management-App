@@ -4,6 +4,7 @@ using Domain.Entities.Models;
 using Domain.Modules;
 using Infrastructure.EF.Database;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Authentication.Service
 {
@@ -22,13 +23,12 @@ namespace Infrastructure.Authentication.Service
             _passwordHasher = passwordHasher;
         }
 
-        public UserApplication SignIn(UserApplication model)
+        public async Task<UserApplication> SignIn(UserApplication model)
         {
             if (model is null)
                 throw new BusinessException("User credentials can not be empty.", 401);
 
-            //var user = _context.Users.FirstOrDefault(u => u.Name == model.Name && u.Password == model.Password);
-            var user = _context.Users.FirstOrDefault(u => u.Name == model.Name);
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Name == model.Name);
 
             if(user == null)
                 throw new NotFoundException("User not found.");
@@ -41,12 +41,12 @@ namespace Infrastructure.Authentication.Service
             return user;
         }
 
-        public UserApplication Register(UserApplication model)
+        public async Task<UserApplication> Register(UserApplication model)
         {
             if (model is null)
                 throw new BusinessException("User credentials can not be empty.", 401);
 
-            var existedUser = _authenticationManager.FindUserByName(model.Name);
+            var existedUser = await _authenticationManager.FindUserByName(model.Name);
 
             if (existedUser != null)
                 throw new BusinessException("User with the given credentials exists.", 409);
@@ -57,8 +57,8 @@ namespace Infrastructure.Authentication.Service
 
             model.Password = hashedPasswdord;
 
-            _context.Users.Add(model);
-            _context.SaveChanges();
+            await _context.Users.AddAsync(model);
+            await _context.SaveChangesAsync();
 
             return model;
         }

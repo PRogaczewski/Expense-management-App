@@ -7,7 +7,7 @@ namespace Application.Authentication.IServices
     {
         bool Succeeded { get; protected set; }
 
-        T FindUserByName(string name);
+        Task<T> FindUserByName(string name);
 
         List<Claim> GetClaims(T user);
     }

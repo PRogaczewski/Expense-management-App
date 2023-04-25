@@ -4,8 +4,8 @@ namespace Domain.Modules
 {
     public interface IAuthenticationModule
     {
-        UserApplication SignIn(UserApplication model);
+        Task<UserApplication> SignIn(UserApplication model);
 
-        UserApplication Register(UserApplication model);
+        Task<UserApplication> Register(UserApplication model);
     }
 }

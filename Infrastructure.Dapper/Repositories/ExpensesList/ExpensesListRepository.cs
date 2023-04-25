@@ -10,7 +10,7 @@ using System.Data.SqlClient;
 
 namespace Infrastructure.Dapper.Repositories.ExpensesList
 {
-    public class ExpensesListRepository : DataConnection, ICategoryService, IExpensesListModule
+    public class ExpensesListRepository : DataConnection//, ICategoryService, IExpensesListModule
     {
         private readonly IExpensesSeeder _seeder;
 

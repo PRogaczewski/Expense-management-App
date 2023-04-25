@@ -1,6 +1,7 @@
 ﻿using Application.Authentication.IServices;
 using Domain.Entities.Models;
 using Infrastructure.EF.Database;
+using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 
 namespace Infrastructure.Authentication.Service
@@ -16,9 +17,9 @@ namespace Infrastructure.Authentication.Service
 
         public bool Succeeded { get; set; }
 
-        public UserApplication FindUserByName(string name)
+        public async Task<UserApplication> FindUserByName(string name)
         {
-            var user = _context.Users.FirstOrDefault(u => u.Name == name);
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Name == name);
 
             return user;
         }

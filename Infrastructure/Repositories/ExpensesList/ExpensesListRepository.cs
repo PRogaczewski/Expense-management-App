@@ -28,44 +28,37 @@ namespace Infrastructure.EF.Repositories.ExpensesList
             return ((ICategoryService)this).GetExpenseCategories();
         }
 
-        public IEnumerable<UserExpensesList> GetExpensesLists()
+        public async Task<IEnumerable<UserExpensesList>> GetExpensesLists()
         {
             var userId = _userContext.GetUserId();
 
             if (userId == null)
                 throw new BusinessException("Something went wrong...", 404);
 
-            var models = _context.ExpensesLists
-                //.Include(e => e.Expenses)
-                //.OrderByDescending(o => o.CreatedDate.Year)
-                //.ThenByDescending(o => o.CreatedDate.Month)
-                //.Include(e=>e.UserGoals)
-                //.ThenInclude(u => u.UserCategoryGoals)
-                //.OrderBy(e => e.CreatedDate)
-                //.Include(e=>e.UserIncomes)
-                .Where(e => e.UserApplicationId == userId);
+            var models = await _context.ExpensesLists
+                .Where(e => e.UserApplicationId == userId).ToListAsync();
 
-            if (models is null)
+            if (models is null || !models.Any())
                 throw new NotFoundException("Expenses lists not found.");
 
             return models;
         }
 
-        public UserExpensesList GetExpensesList(int id)
+        public async Task<UserExpensesList> GetExpensesList(int id)
         {
             var userId = _userContext.GetUserId();
 
             if (userId == null)
                 throw new BusinessException("Something went wrong...", 404);
 
-            var model = _context.ExpensesLists            
+            var model = await _context.ExpensesLists            
                 .Include(e => e.Expenses
                 .OrderByDescending(o => o.CreatedDate.Year)
                 .ThenByDescending(o => o.CreatedDate.Month))
                 .Include(e => e.UserGoals)
                 .ThenInclude(u=>u.UserCategoryGoals)
                 .Include(e=>e.UserIncomes)
-                .FirstOrDefault(e => e.Id == id && e.UserApplicationId == userId);
+                .FirstOrDefaultAsync(e => e.Id == id && e.UserApplicationId == userId);
 
             if (model is null)
                 throw new NotFoundException("User expenses list not found.");
@@ -73,7 +66,7 @@ namespace Infrastructure.EF.Repositories.ExpensesList
             return model;
         }
 
-        public void CreateExpensesList(UserExpensesList model)
+        public async Task CreateExpensesList(UserExpensesList model)
         {
             var userId = _userContext.GetUserId();
 
@@ -91,11 +84,11 @@ namespace Infrastructure.EF.Repositories.ExpensesList
             model.CreatedDate = DateTime.Now;
             model.UserApplicationId = userId.Value;
 
-            _context.ExpensesLists.Add(model);
-            _context.SaveChanges();
+            await _context.ExpensesLists.AddAsync(model);
+            await _context.SaveChangesAsync();
         }
 
-        public void UpdateExpensesList(UserExpensesList model, int id)
+        public async Task UpdateExpensesList(UserExpensesList model, int id)
         {
             var editModel = _context.ExpensesLists
                 .Include(e => e.Expenses)
@@ -104,7 +97,7 @@ namespace Infrastructure.EF.Repositories.ExpensesList
             if (editModel is null)
                 throw new NotFoundException("User list not found.");
 
-            if (GetExpensesLists().Any(e => e.Name == model.Name))
+            if ((await GetExpensesLists()).Any(e => e.Name == model.Name))
                 throw new BusinessException("List with this name exists.", 409);
 
             var userId = _userContext.GetUserId();
@@ -115,10 +108,10 @@ namespace Infrastructure.EF.Repositories.ExpensesList
             editModel.Name = model.Name;
             editModel.UpdateDate = DateTime.Now;
 
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
         }
 
-        public void DeleteExpensesList(int id)
+        public async Task DeleteExpensesList(int id)
         {
             var result = _context.ExpensesLists.First(e => e.Id == id);
 
@@ -131,7 +124,7 @@ namespace Infrastructure.EF.Repositories.ExpensesList
                 throw new BusinessException("Something went wrong...", 404);
 
             _context.Remove(result);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
         }
     }
 }

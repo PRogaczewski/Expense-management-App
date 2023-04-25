@@ -1,22 +1,15 @@
 ﻿using Domain.Entities.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Domain.Modules
 {
     public interface IExpensesModule
     {
-        //public UserExpense GetExpensesList(int id);
+        Task CreateExpense(UserExpense model);
 
-        public void CreateExpense(UserExpense model);
+        Task<bool> CreateExpensesGoal(UserExpenseGoal model);
 
-        public bool CreateExpensesGoal(UserExpenseGoal model);
+        Task<UserIncome> GetMonthlyIncome(int id, string year, string month);
 
-        public UserIncome GetMonthlyIncome(int id, string year, string month);
-
-        public void AddMonthlyIncome(UserIncome income);
+        Task AddMonthlyIncome(UserIncome income);
     }
 }

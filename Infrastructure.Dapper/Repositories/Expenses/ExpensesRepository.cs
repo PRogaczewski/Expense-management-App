@@ -7,7 +7,7 @@ using System.Data.SqlClient;
 
 namespace Infrastructure.Dapper.Repositories.Expenses
 {
-    public class ExpensesRepository : DataConnection, IExpensesModule
+    public class ExpensesRepository : DataConnection//, IExpensesModule
     {
         public ExpensesRepository(IConfiguration configuration) : base(configuration)
         { }

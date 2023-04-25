@@ -1,5 +1,4 @@
-﻿using Application.Exceptions;
-using AutoMapper;
+﻿using AutoMapper;
 using Domain.Entities.Models;
 using Domain.Modules;
 using Infrastructure.EF.Database;
@@ -19,29 +18,17 @@ namespace Infrastructure.EF.Repositories.Expenses
             _mapper = mapper;
         }
 
-        //public UserExpense GetExpensesList(int id)
-        //{
-        //    var model = _context.Expenses
-        //        .Include(e => e.UserExpensesList)
-        //        .FirstOrDefault(m => m.Id == id);
-
-        //    if (model is null)
-        //        throw new NotFoundException("User expenses list not found.");
-
-        //    return model;
-        //}
-
-        public void CreateExpense(UserExpense model)
+        public async Task CreateExpense(UserExpense model)
         {
             var result = _mapper.Map<UserExpense>(model);
 
             result.CreatedDate = DateTime.Now;
 
-            _context.Expenses.Add(result);
-            _context.SaveChanges();
+            await _context.Expenses.AddAsync(result);
+            await _context.SaveChangesAsync();
         }
 
-        public bool CreateExpensesGoal(UserExpenseGoal model)
+        public async Task<bool> CreateExpensesGoal(UserExpenseGoal model)
         {
             var result = _mapper.Map<UserExpenseGoal>(model);
 
@@ -58,8 +45,8 @@ namespace Infrastructure.EF.Repositories.Expenses
             {
                 result.CreatedDate = DateTime.Now;
 
-                _context.UserExpensesGoals.Add(result);
-                _context.SaveChanges();
+                await _context.UserExpensesGoals.AddAsync(result);
+                await _context.SaveChangesAsync();
 
                 return true;
             }
@@ -67,18 +54,18 @@ namespace Infrastructure.EF.Repositories.Expenses
             return false;
         }
 
-        public UserIncome GetMonthlyIncome(int id, string year, string month)
+        public async Task<UserIncome> GetMonthlyIncome(int id, string year, string month)
         {
-            var model = _context.UserIncomes.FirstOrDefault(m => m.UserExpensesListId == id 
+            var model = await _context.UserIncomes.FirstOrDefaultAsync(m => m.UserExpensesListId == id 
             && m.CreatedDate.Year.ToString() == year
             && m.CreatedDate.Month.ToString() == month);
 
             return model;
         }
 
-        public void AddMonthlyIncome(UserIncome income)
+        public async Task AddMonthlyIncome(UserIncome income)
         {
-            var currentMonthIncomes = _context.UserIncomes.FirstOrDefault(u => u.UserExpensesListId == income.UserExpensesListId && u.CreatedDate.Month==DateTime.Now.Month);
+            var currentMonthIncomes = await _context.UserIncomes.FirstOrDefaultAsync(u => u.UserExpensesListId == income.UserExpensesListId && u.CreatedDate.Month==DateTime.Now.Month);
 
             if (currentMonthIncomes != null)
             {
@@ -89,10 +76,10 @@ namespace Infrastructure.EF.Repositories.Expenses
             {
                 income.CreatedDate = DateTime.Now;
 
-                _context.UserIncomes.Add(income);
+                await _context.UserIncomes.AddAsync(income);
             }
 
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
         }
     }
 }

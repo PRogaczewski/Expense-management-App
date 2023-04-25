@@ -1,7 +1,9 @@
 using Application.Dto.Models.ExpensesList;
 using Application.Exceptions;
 using Application.IServices.ExpensesList;
+using AutoMapper;
 using ExpensesApi.Models.ErrorHandlers;
+using ExpensesApi.Models.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -14,9 +16,12 @@ namespace ExpensesApi.Controllers
     {
         private readonly IExpensesListService _expensesListService;
 
-        public HomeController(IExpensesListService expensesListService)
+        private readonly IMapper _mapper;
+
+        public HomeController(IExpensesListService expensesListService, IMapper mapper)
         {
             _expensesListService = expensesListService;
+            _mapper = mapper;
         }
 
         [HttpGet("GetCategories")]
@@ -28,25 +33,38 @@ namespace ExpensesApi.Controllers
         }
 
         [HttpGet]
-        public ActionResult<IEnumerable<UserExpensesListDtoList>> Home()
+        public async Task<ActionResult<IEnumerable<UserExpensesListViewModel>>> Home()
         {
             try
             {
-                var expensesLists = _expensesListService.GetExpensesLists();
-                return Ok(expensesLists);
+                var expensesLists = await _expensesListService.GetExpensesLists();
+
+                var result = new UserExpensesListViewModel();
+                result.UserLists = expensesLists;
+                result.Success = true;
+
+                return Ok(result);
             }
             catch (NotFoundException ex)
             {
                 return NotFound(new ErrorHandler(ex.Message));
             }
+            catch (Exception ex)
+            {
+                return BadRequest(new ErrorHandler(ex.Message));
+            }
         }
 
         [HttpGet("{id}")]
-        public ActionResult GetList(int id)
+        public async Task<ActionResult> GetList(int id)
         {
             try
             {
-                var expensesList = _expensesListService.GetExpensesList(id);
+                var expensesList = await _expensesListService.GetExpensesList(id);
+
+                var result = _mapper.Map<UserExpensesListModelViewModel>(expensesList);
+
+                result.Success = true;
 
                 return Ok(expensesList);
             }
@@ -54,14 +72,18 @@ namespace ExpensesApi.Controllers
             {
                 return NotFound(new ErrorHandler(ex.Message));
             }
+            catch(Exception ex)
+            {
+                return BadRequest(new ErrorHandler(ex.Message));
+            }
         }
 
         [HttpPost]
-        public ActionResult Create(UserExpensesListModel model)
+        public async Task<ActionResult> Create(UserExpensesListModel model)
         {
             try
             {
-                _expensesListService.CreateExpensesList(model);
+                await _expensesListService.CreateExpensesList(model);
 
                 return Ok();
             }
@@ -72,11 +94,11 @@ namespace ExpensesApi.Controllers
         }
 
         [HttpPut("{id}")]
-        public ActionResult Update(UserExpensesListModel model, int id)
+        public async Task<ActionResult> Update(UserExpensesListModel model, int id)
         {
             try
             {
-                _expensesListService.UpdateExpensesList(model, id);
+                await _expensesListService.UpdateExpensesList(model, id);
 
                 return Ok();
             }
@@ -91,11 +113,11 @@ namespace ExpensesApi.Controllers
         }
 
         [HttpDelete("{id}")]
-        public ActionResult Delete(int id)
+        public async Task<ActionResult> Delete(int id)
         {
             try
             {
-                _expensesListService.DeleteExpensesList(id);
+                await _expensesListService.DeleteExpensesList(id);
 
                 return Ok();
             }

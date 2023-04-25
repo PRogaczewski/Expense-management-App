@@ -11,9 +11,9 @@ namespace Infrastructure.Dapper
     {
         public static IServiceCollection InfrastructureRegistrationService(this IServiceCollection services, IConfiguration configuration)
         {
-            services.AddTransient<IExpensesModule, ExpensesRepository>();
-            services.AddTransient<IExpensesListModule, ExpensesListRepository>();
-            services.AddTransient<IExpensesSeeder, ExpensesSeeder>();
+            //services.AddTransient<IExpensesModule, ExpensesRepository>();
+            //services.AddTransient<IExpensesListModule, ExpensesListRepository>();
+            //services.AddTransient<IExpensesSeeder, ExpensesSeeder>();
 
             return services;
         }
