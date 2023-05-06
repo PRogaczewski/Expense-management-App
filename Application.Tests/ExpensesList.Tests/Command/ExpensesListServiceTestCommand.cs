@@ -17,6 +17,13 @@ namespace Application.Tests.ExpensesList.Tests.Command
     {
         private readonly HttpClient _client;
 
+        public class TestCaseData
+        {
+            public UserExpensesListModel Model { get; set; }
+
+            public int Id { get; set; }
+        }
+
         public ExpensesListServiceTest()
         {
             var factory = new WebApplicationFactory<Program>();
@@ -34,9 +41,7 @@ namespace Application.Tests.ExpensesList.Tests.Command
 
                         services.Remove(dbContext);
 
-                        //services.AddDbContext<ExpenseDbContext>(options => options.UseSqlServer(configuration.GetConnectionString("ExpenseDbStringTests")));
                         services.AddDbContext<ExpenseDbContext>(options => options.UseInMemoryDatabase("ExpenseDbTest"));
-
                     });
                 })
                 .CreateClient();
@@ -73,6 +78,21 @@ namespace Application.Tests.ExpensesList.Tests.Command
             Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
         }
 
+        [Test]
+        [TestCaseSource(nameof(UpdateExpensesList_ExistingList_ReturnOk_TestCases))]
+        public async Task UpdateExpensesList_ExistingList_ReturnOk(TestCaseData testModel)
+        {
+            //Arrange
+            var json = JsonConvert.SerializeObject(testModel.Model);
+
+            var httpContent = new StringContent(json, Encoding.UTF8, "application/json");
+            //Act
+            var response = await _client.PutAsync($"/Home/{testModel.Id}", httpContent);
+
+            //Assert
+            Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
+        }
+
 
         private static IEnumerable<UserExpensesListModel> CreateExpensesList_NoSeeder_ReturnOk_TestCases()
         {
@@ -90,6 +110,15 @@ namespace Application.Tests.ExpensesList.Tests.Command
             yield return new UserExpensesListModel() { Name = "Seedertestcase1" };
             yield return new UserExpensesListModel() { Name = "SEEdER test 6" };
             yield return new UserExpensesListModel() { Name = "Name seeder 1" };
+        }
+
+        private static IEnumerable<TestCaseData> UpdateExpensesList_ExistingList_ReturnOk_TestCases()
+        {
+            yield return new TestCaseData() { Model = new UserExpensesListModel() { Name = "test01"}, Id = 1030 };
+            yield return new TestCaseData() { Model = new UserExpensesListModel() { Name = "test078"}, Id = 1031 };
+            yield return new TestCaseData() { Model = new UserExpensesListModel() { Name = "aaaaaa90"}, Id = 1031 };
+            yield return new TestCaseData() { Model = new UserExpensesListModel() { Name = "mynewlist"}, Id = 1032 };
+            yield return new TestCaseData() { Model = new UserExpensesListModel() { Name = "mytestlist90"}, Id = 1033 };
         }
     }
 }

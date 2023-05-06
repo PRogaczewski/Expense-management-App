@@ -6,6 +6,7 @@ namespace Application.Authentication.Models
     {
         [Required]
         [MaxLength(35)]
+        [MinLength(8)]
         public string ConfirmedPassword { get; set; }
     }
 }

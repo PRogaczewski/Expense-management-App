@@ -40,18 +40,18 @@ namespace ExpensesApi.Controllers
                 var expensesLists = await _expensesListService.GetExpensesLists();
 
                 var result = new UserExpensesListViewModel();
-                result.UserLists = expensesLists;
+                result.UserLists = _mapper.Map<List<UserExpensesListModelViewModel>>(expensesLists);
                 result.Success = true;
 
                 return Ok(result);
             }
             catch (NotFoundException ex)
             {
-                return NotFound(new ErrorHandler(ex.Message));
+                return NotFound(new ErrorHandlerResponse(ex.Message));
             }
             catch (Exception ex)
             {
-                return BadRequest(new ErrorHandler(ex.Message));
+                return BadRequest(new ErrorHandlerResponse(ex.Message));
             }
         }
 
@@ -70,11 +70,11 @@ namespace ExpensesApi.Controllers
             }
             catch (NotFoundException ex)
             {
-                return NotFound(new ErrorHandler(ex.Message));
+                return NotFound(new ErrorHandlerResponse(ex.Message));
             }
             catch(Exception ex)
             {
-                return BadRequest(new ErrorHandler(ex.Message));
+                return BadRequest(new ErrorHandlerResponse(ex.Message));
             }
         }
 
@@ -89,7 +89,7 @@ namespace ExpensesApi.Controllers
             }
             catch (BusinessException ex)
             {
-                return Conflict(new ErrorHandler(ex.Message));
+                return Conflict(new ErrorHandlerResponse(ex.Message));
             }
         }
 
@@ -104,11 +104,11 @@ namespace ExpensesApi.Controllers
             }
             catch (BusinessException ex)
             {
-                return Conflict(new ErrorHandler(ex.Message));
+                return Conflict(new ErrorHandlerResponse(ex.Message));
             }
             catch (NotFoundException ex) 
             {
-                return NotFound(new ErrorHandler(ex.Message));
+                return NotFound(new ErrorHandlerResponse(ex.Message));
             }
         }
 
@@ -123,7 +123,7 @@ namespace ExpensesApi.Controllers
             }
             catch (NotFoundException ex)
             {
-                return NotFound(new ErrorHandler(ex.Message));
+                return NotFound(new ErrorHandlerResponse(ex.Message));
             }
         }
     }
