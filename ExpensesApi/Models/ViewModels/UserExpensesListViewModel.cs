@@ -12,11 +12,11 @@ namespace ExpensesApi.Models.ViewModels
 
         //public int Count { get; set; }
 
-        public IEnumerable<UserExpensesListDtoList> UserLists { get; set; }
+        public IEnumerable<UserExpensesListModelViewModel> UserLists { get; set; }
 
         public UserExpensesListViewModel()
         {
-            UserLists = new List<UserExpensesListDtoList>();
+            UserLists = new List<UserExpensesListModelViewModel>();
         }
     }
 }

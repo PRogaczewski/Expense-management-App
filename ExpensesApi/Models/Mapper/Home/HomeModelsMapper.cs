@@ -10,6 +10,8 @@ namespace ExpensesApi.Models.Mapper.Home
         {
             CreateMap<UserExpensesListDtoList, UserExpensesListViewModel>();
 
+            CreateMap<UserExpensesListDtoList, UserExpensesListModelViewModel>();
+
             CreateMap<UserExpensesListDtoModel, UserExpensesListModelViewModel>();
         }
     }

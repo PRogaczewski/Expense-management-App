@@ -74,7 +74,7 @@ namespace Application.Tests.ExpensesList.Tests.Query
             Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
         }
 
-        [Test] //DatabseTransactionDispose
+        [Test]
         [TestCase(4)]
         [TestCase(1)]
         [TestCase(2)]
@@ -89,7 +89,7 @@ namespace Application.Tests.ExpensesList.Tests.Query
             Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.NotFound));
         }
 
-        [Test] //DatabseTransactionDispose
+        [Test]
         [TestCase(1030)]
         public async Task GetExpensesList_ExistingUserId_ReturnOk(int id)
         {

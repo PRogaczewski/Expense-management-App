@@ -1,6 +1,5 @@
 ﻿using Application.Dto.Models.Expenses;
 using Application.Dto.Models.ExpensesList;
-using Application.Exceptions;
 using Application.IServices.AnalysisService;
 using Application.IServices.Expenses;
 using Application.IServices.ExpensesList;
@@ -230,10 +229,13 @@ namespace Application.Services.AnalysisService
                     .ToList();
             }
 
-            if (!results.Any())
-                throw new BusinessException("Error occured during getting expenses.", 404);
-
             decimal totalSum = 0.0m;
+
+            if (!results.Any())
+            {
+                //throw new BusinessException("Error occured during getting expenses.", 404);
+                return decimal.Round(totalSum, 2);
+            }
 
             foreach (var expense in results)
             {

@@ -44,7 +44,7 @@ namespace ExpensesApi.Controllers
             }
             catch (Exception ex)
             {
-                return NotFound(new ErrorHandler(ex.Message));
+                return NotFound(new ErrorHandlerResponse(ex.Message));
             }
            
         }
@@ -63,7 +63,7 @@ namespace ExpensesApi.Controllers
             }
             catch (BusinessException ex)
             {
-                return NotFound(new ErrorHandler(ex.Message));
+                return NotFound(new ErrorHandlerResponse(ex.Message));
             }
            
         }
@@ -79,7 +79,7 @@ namespace ExpensesApi.Controllers
             }
             catch (BusinessException ex)
             {
-                return NotFound(new ErrorHandler(ex.Message));
+                return NotFound(new ErrorHandlerResponse(ex.Message));
             } 
         }
 
@@ -100,7 +100,7 @@ namespace ExpensesApi.Controllers
             }
             catch (Exception ex)
             {
-                return NotFound(new ErrorHandler(ex.Message));
+                return NotFound(new ErrorHandlerResponse(ex.Message));
             }
         }
 
@@ -118,7 +118,7 @@ namespace ExpensesApi.Controllers
             }
             catch (Exception ex)
             {
-                return NotFound(new ErrorHandler(ex.Message));
+                return NotFound(new ErrorHandlerResponse(ex.Message));
             }
         }
 
@@ -133,7 +133,7 @@ namespace ExpensesApi.Controllers
             }
             catch (Exception ex)
             {
-                return NotFound(new ErrorHandler(ex.Message));
+                return NotFound(new ErrorHandlerResponse(ex.Message));
             }
         }
 
@@ -148,7 +148,7 @@ namespace ExpensesApi.Controllers
             }
             catch (Exception ex)
             {
-                return NotFound(new ErrorHandler(ex.Message)); ;
+                return NotFound(new ErrorHandlerResponse(ex.Message)); ;
             }
         }
 
@@ -163,7 +163,7 @@ namespace ExpensesApi.Controllers
             }
             catch (BusinessException ex)
             {
-                return NotFound(new ErrorHandler(ex.Message));
+                return NotFound(new ErrorHandlerResponse(ex.Message));
             }
             
         }
@@ -179,7 +179,7 @@ namespace ExpensesApi.Controllers
             }
             catch (BusinessException ex)
             {
-                return NotFound(new ErrorHandler(ex.Message));
+                return NotFound(new ErrorHandlerResponse(ex.Message));
             }
            
         }
@@ -192,13 +192,13 @@ namespace ExpensesApi.Controllers
                 var total = (await _analysisService.MonthlyGoals(id, year, month)).ToDictionary(k => k.Keys, v => v.Values);
 
                 if (!total.Any())
-                    return NotFound(new ErrorHandler("User goals for current month not found."));
+                    return NotFound(new ErrorHandlerResponse("User goals for current month not found."));
 
                 return Ok(total);
             }
             catch (Exception ex)
             {
-                return NotFound(new ErrorHandler(ex.Message));
+                return NotFound(new ErrorHandlerResponse(ex.Message));
             }
         }
 
@@ -213,7 +213,7 @@ namespace ExpensesApi.Controllers
             }
             catch (BusinessException ex)
             {
-                return NotFound(new ErrorHandler(ex.Message));
+                return NotFound(new ErrorHandlerResponse(ex.Message));
             }
         }
     }
