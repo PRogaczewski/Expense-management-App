@@ -58,6 +58,9 @@ namespace Domain.Categories
         Shopping,
 
         [Display(Name = "Kids")]
-        Kids
+        Kids,
+
+        [Display(Name = "Subscriptions")]
+        Subscriptions
     }
 }

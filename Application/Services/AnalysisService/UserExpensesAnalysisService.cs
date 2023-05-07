@@ -49,7 +49,7 @@ namespace Application.Services.AnalysisService
             weekEnding = new DateTime(int.Parse(year), monthBegining, weekBegining).AddDays(6).Day;
 
             var beginDate = new DateTime(int.Parse(year), monthBegining, weekBegining);
-            var endDate = new DateTime(int.Parse(year), monthEnding, weekEnding);
+            var endDate = new DateTime(int.Parse(year), monthEnding, weekEnding,23,59,59);
 
             if(model == null)
             {
@@ -148,7 +148,6 @@ namespace Application.Services.AnalysisService
                 .ToList();
 
             IDictionary<string, decimal> currentMonthGoal = new Dictionary<string, decimal>();
-            //poprawic zwracanie nazw kategorii
 
             foreach (var goalsList in currentGoals)
             {
@@ -156,17 +155,17 @@ namespace Application.Services.AnalysisService
                 {
                     if (currentMonthGoal.ContainsKey(item.Category.ToString()))
                     {
-                        currentMonthGoal[item.Category.ToString()] += item.Limit;
+                        currentMonthGoal[item.Category.GetEnumDisplayName().ToString()] += item.Limit;
                     }
                     else
                     {
-                        currentMonthGoal.Add(item.Category.ToString(), item.Limit);
+                        currentMonthGoal.Add(item.Category.GetEnumDisplayName().ToString(), item.Limit);
                     }
                 }
             }
 
             var currentMonthExpenses = await ExpensesByCategoryMonth(id, year, month);
-            var categories = currentMonthGoal.Keys.Intersect(currentMonthExpenses.Keys);
+            var categories = currentMonthGoal.Keys.Intersect(currentMonthExpenses.Keys).ToList();
 
             IDictionary<string, decimal> currentMonthResult = new Dictionary<string, decimal>();
             IDictionary<string, decimal> currentMonthGoalExpenses = new Dictionary<string, decimal>();
