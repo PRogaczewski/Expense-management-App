@@ -84,19 +84,22 @@ namespace ExpensesApi.Controllers
         }
 
         [HttpGet("TotalInMonthByCategories/{id}")]
-        public async Task<ActionResult> GetMonthTotalByCategories(int id, string? year, string? month)
+        public async Task<ActionResult<MonthSummaryViewModel>> GetMonthTotalByCategories(int id, string? year, string? month)
         {
             if (string.IsNullOrEmpty(year))
                 year = DateTime.Now.Year.ToString();
 
             if (string.IsNullOrEmpty(month))
-                month = DateTime.Now.Year.ToString();
+                month = DateTime.Now.Month.ToString();
 
             try
             {
                 var total = (await _analysisService.ExpensesByCategoryMonth(id, year, month)).ToDictionary(k => k.Key, v => v.Value);
+                var prevMonth = await _analysisService.TotalExpensesMonth(id, year, (int.Parse(month) - 1).ToString());
 
-                return Ok(total);
+                var result = MonthSummaryViewModel.CreateViewModel(prevMonth, total);
+
+                return Ok(result);
             }
             catch (Exception ex)
             {

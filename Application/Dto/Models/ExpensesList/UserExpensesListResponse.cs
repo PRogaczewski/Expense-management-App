@@ -8,6 +8,8 @@
 
         public decimal MonthlyResult { get; set; }
 
+        public decimal PreviousMonthResult { get; set; }
+
         public IDictionary<string, decimal> TotalMonthByCategories { get; set; }
 
         public IDictionary<string, decimal> CurrentWeekByCategories { get; set; }

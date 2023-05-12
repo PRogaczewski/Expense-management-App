@@ -1,4 +1,5 @@
-﻿using Domain.Modules;
+﻿using Application.Exceptions;
+using Domain.Modules;
 using Microsoft.AspNetCore.Http;
 using System.Security.Claims;
 
@@ -20,7 +21,12 @@ namespace Infrastructure.Authentication.Service
             if (UserInfo == null)
                 return null;
 
-            return int.Parse(UserInfo.FindFirst(u => u.Type == ClaimTypes.NameIdentifier).Value);
+            var userClaim = UserInfo.FindFirst(u => u.Type == ClaimTypes.NameIdentifier);
+
+            if (userClaim == null)
+                throw new BusinessException("User not authenticated", 401);
+
+            return int.Parse(userClaim.Value);
         }
     }
 }
