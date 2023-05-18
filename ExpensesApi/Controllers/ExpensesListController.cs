@@ -2,7 +2,6 @@
 using Application.Exceptions;
 using Application.IServices.AnalysisService;
 using Application.IServices.Expenses;
-using Application.IServices.ExpensesList;
 using AutoMapper;
 using ExpensesApi.Models.ErrorHandlers;
 using ExpensesApi.Models.ViewModels;
@@ -16,19 +15,16 @@ namespace ExpensesApi.Controllers
     {
         private readonly IExpensesService _service;
 
-        //private readonly IExpensesListService _expensesListService;
-
         private readonly IUserExpensesAnalysisService _analysisService;
 
         private readonly IUserInitialData _userInitialData;
 
         private readonly IMapper _mapper;
 
-        public ExpensesListController(IExpensesService service, IUserExpensesAnalysisService analysisService, IExpensesListService expensesListService, IUserInitialData userInitialData, IMapper mapper)
+        public ExpensesListController(IExpensesService service, IUserExpensesAnalysisService analysisService, IUserInitialData userInitialData, IMapper mapper)
         {
             _service = service;
             _analysisService = analysisService;
-            //_expensesListService = expensesListService;
             _userInitialData = userInitialData;
             _mapper = mapper;
         }

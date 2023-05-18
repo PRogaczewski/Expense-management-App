@@ -1,0 +1,43 @@
+version: '3.4'
+
+networks:
+  expensesapp:
+  
+services:
+  expensesdbdemo:
+    container_name: demo-expenses-db
+    image: mcr.microsoft.com/mssql/server:2019-latest
+    restart: always
+    environment:
+      - ACCEPT_EULA=Y
+      - MSSQL_SA_PASSWORD=!strong_pass
+      - MSSQL_PID=Developer
+    ports:
+      - "1433:1433" 
+    volumes:
+      - mssql_data:/var/opt/mssql
+    user: root
+    networks:
+      - expensesapp
+
+  expensesapi:
+    container_name: demo-expenses-api
+    image: ${DOCKER_REGISTRY-}expenses-api2
+    build:
+      context: .
+      dockerfile: ExpensesApi/Dockerfile
+    ports:
+      - "5600:80"
+      - "5800:443"
+    depends_on:
+      - expensesdbdemo
+    environment:
+      - ConnectionStrings__ExpenseDbString=Data Source=expensesdbdemo; Initial Catalog=ExpenseDb; Persist Security Info=True;User ID=sa;Password=!strong_pass
+      - ASPNETCORE_HTTPS_PORT=443
+      - ASPNETCORE_URLS=https://+:443;http://+:80
+    networks:
+      - expensesapp
+
+volumes:
+  mssql_data:
+  

@@ -36,9 +36,9 @@ namespace Infrastructure.EF.Repositories.Expenses
 
             foreach (var userGoal in result.UserCategoryGoals)
             {
-                var test = _context.UserExpensesGoals.Where(u => u.MonthChosenForGoal == result.MonthChosenForGoal && u.UserExpensesListId == result.UserExpensesListId).ToList();
+                var userGoals = _context.UserExpensesGoals.Where(u => u.MonthChosenForGoal == result.MonthChosenForGoal && u.UserExpensesListId == result.UserExpensesListId);
 
-                IsAnySameCategory = test.Any(u => u.UserCategoryGoals.Any(c => c.Category == userGoal.Category));
+                IsAnySameCategory = userGoals.Any(u => u.UserCategoryGoals.Any(c => c.Category == userGoal.Category));
             }
 
             if (!IsAnySameCategory)

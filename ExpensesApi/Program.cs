@@ -39,6 +39,8 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
+builder.Configuration.AddJsonFile("appsettings.Docker.json", optional: true, reloadOnChange: true);
+
 builder.Services.ApplicationRegistrationService();
 builder.Services.InfrastructureRegistrationService(builder.Configuration);
 builder.Services.InfrastructureAuthenticationRegistrationService(builder.Configuration);
