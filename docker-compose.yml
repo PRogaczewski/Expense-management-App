@@ -22,7 +22,7 @@ services:
 
   expensesapi:
     container_name: demo-expenses-api
-    image: ${DOCKER_REGISTRY-}expenses-api2
+    image: ${DOCKER_REGISTRY-}expenses-api
     build:
       context: .
       dockerfile: ExpensesApi/Dockerfile

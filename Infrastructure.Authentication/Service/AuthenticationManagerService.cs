@@ -1,5 +1,5 @@
-﻿using Application.Authentication.IServices;
-using Domain.Entities.Models;
+﻿using Domain.Entities.Models;
+using Domain.Modules;
 using Infrastructure.EF.Database;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;

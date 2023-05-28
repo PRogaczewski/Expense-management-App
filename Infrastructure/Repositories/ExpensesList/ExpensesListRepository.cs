@@ -28,6 +28,8 @@ namespace Infrastructure.EF.Repositories.ExpensesList
             return ((ICategoryService)this).GetExpenseCategories();
         }
 
+        #region Query
+
         public async Task<IEnumerable<UserExpensesList>> GetExpensesLists()
         {
             var userId = _userContext.GetUserId();
@@ -44,27 +46,10 @@ namespace Infrastructure.EF.Repositories.ExpensesList
             return models;
         }
 
-        public async Task<UserExpensesList> GetExpensesList(int id)
-        {
-            var userId = _userContext.GetUserId();
+        #endregion
 
-            if (userId == null)
-                throw new BusinessException("Something went wrong...", 404);
 
-            var model = await _context.ExpensesLists            
-                .Include(e => e.Expenses
-                .OrderByDescending(o => o.CreatedDate.Year)
-                .ThenByDescending(o => o.CreatedDate.Month))
-                .Include(e => e.UserGoals)
-                .ThenInclude(u=>u.UserCategoryGoals)
-                .Include(e=>e.UserIncomes)
-                .FirstOrDefaultAsync(e => e.Id == id && e.UserApplicationId == userId);
-
-            if (model is null)
-                throw new NotFoundException("User expenses list not found.");
-
-            return model;
-        }
+        #region Command
 
         public async Task CreateExpensesList(UserExpensesList model)
         {
@@ -126,5 +111,7 @@ namespace Infrastructure.EF.Repositories.ExpensesList
             _context.Remove(result);
             await _context.SaveChangesAsync();
         }
+
+        #endregion
     }
 }

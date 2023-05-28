@@ -8,7 +8,7 @@ namespace ExpensesApi.Controllers
     [AllowAnonymous]
     [ApiController]
     [Route("[controller]")]
-    public class AuthenticationController : Controller
+    public class AuthenticationController : ControllerBase
     {
         private readonly IAuthenticationService _authenticationService;
 

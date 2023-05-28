@@ -232,7 +232,6 @@ namespace Application.Services.AnalysisService
 
             if (!results.Any())
             {
-                //throw new BusinessException("Error occured during getting expenses.", 404);
                 return decimal.Round(totalSum, 2);
             }
 

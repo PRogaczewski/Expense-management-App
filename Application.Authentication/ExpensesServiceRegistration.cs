@@ -13,6 +13,7 @@ namespace Application.Authentication
         {
             services.AddAutoMapper(typeof(AuthenticationMapper).Assembly);
             services.AddTransient<IAuthenticationService, AuthenticationService>();
+            services.AddTransient<IAccountService, AccountService>();
             services.Configure<WebToken>(configuration.GetSection("JsonWebTokenConfig"));
 
             return services;

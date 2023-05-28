@@ -17,6 +17,7 @@ namespace Infrastructure.Authentication
         {
             services.AddTransient<IAuthenticationManagerService<UserApplication>, AuthenticationManagerService>();
             services.AddTransient<IAuthenticationModule, AuthenticationModule>();
+            services.AddTransient<IAccountModule, AccountModule>();
             services.AddScoped<IUserContextModule, UserContextService>();
             services.AddScoped<IPasswordHasher<UserApplication>, PasswordHasher<UserApplication>>();
             services.AddHttpContextAccessor();

@@ -1,7 +1,6 @@
-﻿using Domain.Entities.Models;
-using System.Security.Claims;
+﻿using System.Security.Claims;
 
-namespace Application.Authentication.IServices
+namespace Domain.Modules
 {
     public interface IAuthenticationManagerService<T> where T : class
     {

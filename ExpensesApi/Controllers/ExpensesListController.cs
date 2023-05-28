@@ -5,10 +5,12 @@ using Application.IServices.Expenses;
 using AutoMapper;
 using ExpensesApi.Models.ErrorHandlers;
 using ExpensesApi.Models.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ExpensesApi.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("[controller]")]
     public class ExpensesListController : Controller
