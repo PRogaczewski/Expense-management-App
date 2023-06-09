@@ -16,4 +16,10 @@ Project is created with:
 
 ## Docker (in progress)
 Docker compose includes .NET API, database MSSQL server 2019 and client application in Angular v14 [Client application](https://github.com/PRogaczewski/Expense-management-angular)
+
 You can get set-up using Docker.
+If you just want an environment with webserver, API and database you shuold use this option. 
+
+```
+docker-compose up -d
+```
