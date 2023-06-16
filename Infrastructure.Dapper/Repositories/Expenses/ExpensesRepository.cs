@@ -65,9 +65,6 @@ namespace Infrastructure.Dapper.Repositories.Expenses
 
                     return income.FirstOrDefault();
                 }
-
-                var test = new SqlConnection();
-                var s = test.State;
             }
             catch (Exception ex)
             {

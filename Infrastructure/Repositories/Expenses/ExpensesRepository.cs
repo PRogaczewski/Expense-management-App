@@ -1,6 +1,9 @@
-﻿using AutoMapper;
+﻿using Application.Exceptions;
+using AutoMapper;
+using Domain.Categories;
 using Domain.Entities.Models;
 using Domain.Modules;
+using Domain.ValueObjects;
 using Infrastructure.EF.Database;
 using Microsoft.EntityFrameworkCore;
 
@@ -18,13 +21,24 @@ namespace Infrastructure.EF.Repositories.Expenses
             _mapper = mapper;
         }
 
+        #region Query
+        public async Task<UserIncome> GetMonthlyIncome(int id, string year, string month)
+        {
+            var model = await _context.UserIncomes.FirstOrDefaultAsync(m => m.UserExpensesListId == id
+            && m.CreatedDate.Year.ToString() == year
+            && m.CreatedDate.Month.ToString() == month);
+
+            return model;
+        }
+        #endregion
+
+        #region Command
+
         public async Task CreateExpense(UserExpense model)
         {
-            var result = _mapper.Map<UserExpense>(model);
+            model.CreatedDate = DateTime.Now;
 
-            result.CreatedDate = DateTime.Now;
-
-            await _context.Expenses.AddAsync(result);
+            await _context.Expenses.AddAsync(model);
             await _context.SaveChangesAsync();
         }
 
@@ -32,16 +46,26 @@ namespace Infrastructure.EF.Repositories.Expenses
         {
             var result = _mapper.Map<UserExpenseGoal>(model);
 
-            bool IsAnySameCategory = false;
+            //bool IsAnySameCategory = false;
+            var existingCategories = new List<string>();
+
+            var userGoals = _context.UserExpensesGoals.Where(u => u.MonthChosenForGoal == result.MonthChosenForGoal && u.UserExpensesListId == result.UserExpensesListId);
 
             foreach (var userGoal in result.UserCategoryGoals)
             {
-                var userGoals = _context.UserExpensesGoals.Where(u => u.MonthChosenForGoal == result.MonthChosenForGoal && u.UserExpensesListId == result.UserExpensesListId);
-
-                IsAnySameCategory = userGoals.Any(u => u.UserCategoryGoals.Any(c => c.Category == userGoal.Category));
+                //IsAnySameCategory = userGoals.Any(u => u.UserCategoryGoals.Any(c => c.Category == userGoal.Category));
+                if(userGoals.Any(u => u.UserCategoryGoals.Any(c => c.Category == userGoal.Category)))
+                {
+                    existingCategories.Add(userGoal.Category.GetEnumDisplayName().ToString());
+                }
             }
 
-            if (!IsAnySameCategory)
+            if(existingCategories.Any())
+            {
+                throw new GoalExistsException(existingCategories);
+            }
+
+            if (!existingCategories.Any())
             {
                 result.CreatedDate = DateTime.Now;
 
@@ -54,18 +78,9 @@ namespace Infrastructure.EF.Repositories.Expenses
             return false;
         }
 
-        public async Task<UserIncome> GetMonthlyIncome(int id, string year, string month)
-        {
-            var model = await _context.UserIncomes.FirstOrDefaultAsync(m => m.UserExpensesListId == id 
-            && m.CreatedDate.Year.ToString() == year
-            && m.CreatedDate.Month.ToString() == month);
-
-            return model;
-        }
-
         public async Task AddMonthlyIncome(UserIncome income)
         {
-            var currentMonthIncomes = await _context.UserIncomes.FirstOrDefaultAsync(u => u.UserExpensesListId == income.UserExpensesListId && u.CreatedDate.Month==DateTime.Now.Month);
+            var currentMonthIncomes = await _context.UserIncomes.FirstOrDefaultAsync(u => u.UserExpensesListId == income.UserExpensesListId && u.CreatedDate.Month == DateTime.Now.Month);
 
             if (currentMonthIncomes != null)
             {
@@ -81,5 +96,26 @@ namespace Infrastructure.EF.Repositories.Expenses
 
             await _context.SaveChangesAsync();
         }
+
+        public async Task DeleteExpensesGoal(DateTimeWithIdRequestModel model)
+        {
+            var userGoal = await _context.UserExpensesGoals
+                .FirstOrDefaultAsync(u => u.MonthChosenForGoal.Month.ToString() == model.Month 
+                && u.MonthChosenForGoal.Year.ToString() == model.Year 
+                && u.UserExpensesListId == model.Id);
+
+            if(userGoal != null)
+            {
+                _context.UserExpensesGoals.Remove(userGoal);
+                await _context.SaveChangesAsync();
+            }
+        }
+
+        public async Task<bool> UpdateExpensesGoal(UserExpenseGoal model)
+        {
+            throw new NotImplementedException();
+        }
+
+        #endregion
     }
 }

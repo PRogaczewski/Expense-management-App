@@ -35,7 +35,7 @@ namespace ExpensesApi.Controllers
         [HttpPost("/Register")]
         public async Task<ActionResult> Register(RegistrationRequest model)
         {
-            if(model.Password != model.ConfirmedPassword)
+            if (model.Password != model.ConfirmedPassword)
                 return BadRequest("Passwords must be the same.");
 
             try

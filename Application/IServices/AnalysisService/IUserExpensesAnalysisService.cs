@@ -4,22 +4,42 @@ namespace Application.IServices.AnalysisService
 {
     public interface IUserExpensesAnalysisService
     {
-        Task<decimal> TotalIncomesMonth(int id, string year, string month);
+        ValueTask<decimal> TotalIncomesMonth(int id, string year, string month);
 
-        Task<decimal> TotalExpensesMonth(int id, string year, string month, UserExpensesListDtoModel model = null);
+        ValueTask<decimal> TotalIncomesMonth(string year, string month, UserExpensesListDtoModel model);
 
-        Task<decimal> TotalExpensesYear(int id, string year, UserExpensesListDtoModel model = null);
+        ValueTask<decimal> TotalExpensesMonth(int id, string year, string month, UserExpensesListDtoModel model);
 
-        Task<IDictionary<string, decimal>> ExpensesByCategoryCurrentWeek(int id, string year, string month, UserExpensesListDtoModel model = null);
+        ValueTask<decimal> TotalExpensesMonth(int id, string year, string month);
 
-        Task<IDictionary<string, decimal>> ExpensesByCategoryMonth(int id, string year, string month, UserExpensesListDtoModel model = null);
+        ValueTask<decimal> TotalExpensesYear(int id, string year, UserExpensesListDtoModel model);
 
-        Task<IDictionary<string, decimal>> ExpensesByCategoryYear(int id, string year, UserExpensesListDtoModel models = null);
+        ValueTask<decimal> TotalExpensesYear(int id, string year);
 
-        Task<IDictionary<string, decimal>> CompareByCategoryMonth(int id, string firstYear, string secondYear, string firstMonth, string secondMonth, UserExpensesListDtoModel model = null);
+        ValueTask<IDictionary<string, decimal>> ExpensesByCategoryCurrentWeek(int id, string year, string month, UserExpensesListDtoModel model);
 
-        Task<IDictionary<string, decimal>> CompareByCategoryYear(int id, string firstYear, string secondYear, UserExpensesListDtoModel model = null);
+        ValueTask<IDictionary<string, decimal>> ExpensesByCategoryCurrentWeek(int id, string year, string month);
 
-        Task<IDictionary<string, decimal>[]> MonthlyGoals(int id, string year, string month, UserExpensesListDtoModel model = null);
+        ValueTask<IDictionary<string, decimal>> ExpensesByCategoryMonth(int id, string year, string month, UserExpensesListDtoModel model);
+
+        ValueTask<IDictionary<string, decimal>> ExpensesByCategoryMonth(int id, string year, string month);
+
+        ValueTask<IDictionary<string, decimal>> ExpensesByCategoryYear(int id, string year, UserExpensesListDtoModel models);
+
+        ValueTask<IDictionary<string, decimal>> ExpensesByCategoryYear(int id, string year);
+
+        ValueTask<IDictionary<int, decimal>> AnnualExpensesByMonth(string year, UserExpensesListDtoModel models);
+
+        ValueTask<IDictionary<int, decimal>> AnnualExpensesByMonth(int id, string year);
+
+        ValueTask<IDictionary<string, decimal>> CompareByCategoryMonth(int id, string firstYear, string secondYear, string firstMonth, string secondMonth, UserExpensesListDtoModel model);
+
+        ValueTask<IDictionary<string, decimal>> CompareByCategoryMonth(int id, string firstYear, string secondYear, string firstMonth, string secondMonth);
+
+        ValueTask<IDictionary<string, decimal>> CompareByCategoryYear(int id, string firstYear, string secondYear, UserExpensesListDtoModel model);
+
+        ValueTask<IDictionary<string, decimal>> CompareByCategoryYear(int id, string firstYear, string secondYear);
+
+        ValueTask<IDictionary<string, decimal>[]> MonthlyGoals(int id, string year, string month, UserExpensesListDtoModel model = null);
     }
 }
