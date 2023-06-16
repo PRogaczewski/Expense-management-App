@@ -30,8 +30,8 @@ namespace Infrastructure.SeedData.Service
                     CreatedDate = date,
                 });
 
-                if (i % 4 == 0)
-                    incomes.Add(new UserIncome() { Income = decimal.Round((decimal)(rand.NextDouble() * (3200.99 - 200.01) + 50.55), 2), CreatedDate = date });
+                if (i % 3 == 0)
+                    incomes.Add(new UserIncome() { Income = decimal.Round((decimal)(rand.NextDouble() * (5200.99 - 200.01) + 50.55), 2), CreatedDate = date });
             }
 
             for (int i = 0; i < 5; i++)

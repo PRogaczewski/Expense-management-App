@@ -132,7 +132,7 @@ namespace ExpensesApi.Controllers
 
                 return Ok(total);
             }
-            catch (Exception ex)
+            catch (Exception ex)    
             {
                 return NotFound(new ErrorHandlerResponse(ex.Message));
             }

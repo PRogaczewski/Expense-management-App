@@ -24,8 +24,8 @@ services:
     container_name: demo-expenses-api
     image: ${DOCKER_REGISTRY-}expenses-api
     build:
-      context: .
-      dockerfile: ExpensesApi/Dockerfile
+      context: ./ExpensesApi
+      dockerfile: ./Dockerfile
     ports:
       - "5600:80"
       - "5800:443"
@@ -38,6 +38,16 @@ services:
     networks:
       - expensesapp
 
+  angular:
+    image: ui-test-angular
+    container_name: demo-expenses-angular
+    build:
+      context: ./expenses-api
+      dockerfile: ./Dockerfile
+    ports:
+      - 4200:80
+    networks:
+      - expensesapp
+
 volumes:
   mssql_data:
-  

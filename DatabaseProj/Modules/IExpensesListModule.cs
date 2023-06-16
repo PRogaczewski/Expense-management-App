@@ -1,4 +1,5 @@
 ﻿using Domain.Entities.Models;
+using Domain.ValueObjects;
 
 namespace Domain.Modules
 {
@@ -22,6 +23,27 @@ namespace Domain.Modules
         /// <param name="id"></param>
         /// <returns></returns>
         Task<UserExpensesList> GetExpensesList(int id);
+
+        /// <summary>
+        /// Get current expenses list 
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        Task<UserExpensesList> GetExpensesList(DateTimeWithIdRequestModel request);
+
+        /// <summary>
+        /// Get expenses from current date time option
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        Task<UserExpensesList> GetExpensesByDate(DateTimeWithIdRequestModel request);
+
+        /// <summary>
+        /// Get expenses from current extended date time option
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        Task<UserExpensesList> GetExpensesByDate(ExtendedDateTimeRequestModel request);
 
         /// <summary>
         /// Create new expenses list

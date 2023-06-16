@@ -5,5 +5,7 @@
         public int UserExpensesListId { get; set; }
 
         public decimal Income { get; set; }
+
+        public DateTime CreatedDate { get; set; }
     }
 }
