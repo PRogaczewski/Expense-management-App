@@ -1,11 +1,9 @@
-﻿using Domain.Entities.Models;
-
-namespace Domain.Modules
+﻿namespace Domain.Modules
 {
-    public interface IAuthenticationModule
+    public interface IAuthenticationModule<T> where T : class
     {
-        Task<UserApplication> SignIn(UserApplication model);
+        Task<T> SignIn(T model);
 
-        Task<UserApplication> Register(UserApplication model);
+        Task<T> Register(T model);
     }
 }

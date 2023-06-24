@@ -33,9 +33,6 @@ namespace Application.Dto.Mapper
 
             CreateMap<UserExpensesListDtoModel, UserExpensesList>();
 
-            //CreateMap<UserExpensesListModel, UserExpensesListSeederModel>();
-
-            //CreateMap<UserExpensesListSeederModel, UserExpensesList>();
             #endregion
 
             #region ExpensesMonthlyGoals

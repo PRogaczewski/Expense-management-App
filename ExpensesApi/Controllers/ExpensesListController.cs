@@ -1,8 +1,11 @@
 ﻿using Application.Dto.Models.Expenses;
 using Application.Exceptions;
 using Application.IServices.AnalysisService;
-using Application.IServices.Expenses;
+using Application.IServices.Expenses.Commands;
+using Application.IServices.Expenses.Queries;
+using Application.IServices.ExpensesList.Queries;
 using AutoMapper;
+using Domain.ValueObjects;
 using ExpensesApi.Models.ErrorHandlers;
 using ExpensesApi.Models.ViewModels;
 using Microsoft.AspNetCore.Authorization;
@@ -15,7 +18,9 @@ namespace ExpensesApi.Controllers
     [Route("[controller]")]
     public class ExpensesListController : Controller
     {
-        private readonly IExpensesService _service;
+        private readonly IExpensesServiceCommand _serviceCommand;
+
+        private readonly IExpensesListServiceQuery _expensesListService;
 
         private readonly IUserExpensesAnalysisService _analysisService;
 
@@ -23,12 +28,13 @@ namespace ExpensesApi.Controllers
 
         private readonly IMapper _mapper;
 
-        public ExpensesListController(IExpensesService service, IUserExpensesAnalysisService analysisService, IUserInitialData userInitialData, IMapper mapper)
+        public ExpensesListController(IUserExpensesAnalysisService analysisService, IUserInitialData userInitialData, IMapper mapper, IExpensesServiceCommand serviceCommand, IExpensesListServiceQuery expensesListService)
         {
-            _service = service;
             _analysisService = analysisService;
             _userInitialData = userInitialData;
             _mapper = mapper;
+            _serviceCommand = serviceCommand;
+            _expensesListService = expensesListService;
         }
 
         [HttpGet("{id}")]
@@ -153,12 +159,29 @@ namespace ExpensesApi.Controllers
             }
         }
 
+        [HttpGet("Expenses")]
+        public async Task<ActionResult<IEnumerable<UserExpensesViewModel>>> GetExpenses(int id, int? page, int? pagesize, CancellationToken token)
+        {
+            try
+            {
+                var model = await _expensesListService.GetExpenses(id, page, pagesize, token);
+
+                var result = _mapper.Map<IEnumerable<UserExpensesViewModel>>(model).ToList();
+
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return NotFound(new ErrorHandlerResponse(ex.Message)); ;
+            }
+        }
+
         [HttpPost]
         public async Task<ActionResult> Create(UserExpensesModel model)
         {
             try
             {
-                await _service.CreateExpense(model);
+                await _serviceCommand.CreateExpense(model);
 
                 return Ok();
             }
@@ -174,9 +197,9 @@ namespace ExpensesApi.Controllers
         {
             try
             {
-                bool isSuccessfully = await _service.CreateExpensesGoal(model);
+                await _serviceCommand.CreateExpensesGoal(model);
 
-                return Ok(isSuccessfully);
+                return Ok();
             }
             catch (BusinessException ex)
             {
@@ -208,7 +231,7 @@ namespace ExpensesApi.Controllers
         {
             try
             {
-                await _service.AddMonthlyIncome(model);
+                await _serviceCommand.AddMonthlyIncome(model);
 
                 return Ok();
             }

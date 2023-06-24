@@ -1,7 +1,10 @@
-﻿using Domain.Modules;
+﻿using Domain.Modules.Commands;
+using Domain.Modules.Queries;
 using Infrastructure.EF.Database;
-using Infrastructure.EF.Repositories.Expenses;
-using Infrastructure.EF.Repositories.ExpensesList;
+using Infrastructure.EF.Repositories.Expenses.Commands;
+using Infrastructure.EF.Repositories.Expenses.Queries;
+using Infrastructure.EF.Repositories.ExpensesList.Commands;
+using Infrastructure.EF.Repositories.ExpensesList.Queries;
 using Infrastructure.SeedData.Service;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -17,8 +20,10 @@ namespace Infrastructure.EF
             {
                 builder.EnableRetryOnFailure(3, TimeSpan.FromSeconds(5), null);
             }));
-            services.AddTransient<IExpensesModule, ExpensesRepository>();
-            services.AddTransient<IExpensesListModule, ExpensesListRepository>();
+            services.AddTransient<IExpensesModuleQuery, ExpensesRepositoryQuery>();
+            services.AddTransient<IExpensesModuleCommand, ExpensesRepositoryCommand>();
+            services.AddTransient<IExpensesListModuleQuery, ExpensesListRepositoryQuery>();
+            services.AddTransient<IExpensesListModuleCommand, ExpensesListRepositoryCommand>();
             services.AddTransient<IExpensesSeeder, ExpensesSeeder>();
 
             return services;

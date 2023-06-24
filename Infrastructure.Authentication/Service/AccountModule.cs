@@ -1,5 +1,4 @@
-﻿using Application.Authentication.IServices;
-using Application.Exceptions;
+﻿using Application.Exceptions;
 using Domain.Entities.Models;
 using Domain.Modules;
 using Domain.ValueObjects;
@@ -8,10 +7,8 @@ using Microsoft.AspNetCore.Identity;
 
 namespace Infrastructure.Authentication.Service
 {
-    public class AccountModule : IAccountModule
+    public class AccountModule : DatabaseModule, IAccountModule
     {
-        private readonly ExpenseDbContext _context;
-
         private readonly IAuthenticationManagerService<UserApplication> _authenticationManager;
 
         private readonly IPasswordHasher<UserApplication> _passwordHasher;
@@ -26,7 +23,7 @@ namespace Infrastructure.Authentication.Service
             _userContext = userContext;
         }
 
-        public async Task<bool> ChangePassword(ChangePasswordModel model)
+        public async ValueTask ChangePassword(ChangePasswordModel model)
         {
             var userId = _userContext.GetUserId();
 
@@ -41,18 +38,16 @@ namespace Infrastructure.Authentication.Service
             var verify = _passwordHasher.VerifyHashedPassword(userAcc, userAcc.Password, model.OldPassword);
 
             if (verify == PasswordVerificationResult.Failed)
-                throw new BusinessException("Invalid password.", 404);
+                throw new BusinessException("Invalid password.", 401);
 
             var hashedPassword = _passwordHasher.HashPassword(userAcc, model.NewPassword);
 
             userAcc.Password = hashedPassword;
 
             await _context.SaveChangesAsync();
-
-            return true;
         }
 
-        public async Task<bool> DeleteAccount()
+        public async ValueTask DeleteAccount()
         {
             var userId = _userContext.GetUserId();
 
@@ -66,8 +61,6 @@ namespace Infrastructure.Authentication.Service
 
              _context.Users.Remove(userAcc);
             await _context.SaveChangesAsync();
-
-            return true;
         }
     }
 }

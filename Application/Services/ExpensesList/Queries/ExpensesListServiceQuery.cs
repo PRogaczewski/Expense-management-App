@@ -1,22 +1,20 @@
 ﻿using Application.Dto.Models.Expenses;
 using Application.Dto.Models.ExpensesList;
 using Application.Dto.Models.Helpers;
-using Application.Exceptions;
-using Application.IServices.ExpensesList;
+using Application.IServices.ExpensesList.Queries;
 using AutoMapper;
-using Domain.Entities.Models;
-using Domain.Modules;
+using Domain.Modules.Queries;
 using Domain.ValueObjects;
 
-namespace Application.Services.ExpensesList
+namespace Application.Services.ExpensesList.Queries
 {
-    public class ExpensesListService : IExpensesListService
+    public class ExpensesListServiceQuery : IExpensesListServiceQuery
     {
-        private readonly IExpensesListModule _expensesListModule;
+        private readonly IExpensesListModuleQuery _expensesListModule;
 
         private readonly IMapper _mapper;
 
-        public ExpensesListService(IExpensesListModule expensesListModule, IMapper mapper)
+        public ExpensesListServiceQuery(IExpensesListModuleQuery expensesListModule, IMapper mapper)
         {
             _expensesListModule = expensesListModule;
             _mapper = mapper;
@@ -54,6 +52,15 @@ namespace Application.Services.ExpensesList
             return result;
         }
 
+        public async Task<IEnumerable<UserExpensesDto>> GetExpenses(int id, int? page, int? pagesize, CancellationToken token)
+        {
+            var userExpensesList = await _expensesListModule.GetExpenses(id, page, pagesize, token);
+
+            var result = _mapper.Map<IEnumerable<UserExpensesDto>>(userExpensesList);
+
+            return result;
+        }
+
         public async Task<IEnumerable<DateComparer>> GetExpensesByDate(ExtendedDateTimeRequestModel request)
         {
             var model = await _expensesListModule.GetExpensesByDate(request);
@@ -73,31 +80,6 @@ namespace Application.Services.ExpensesList
                });
 
             return groupedExpensesByDate;
-        }
-
-        public async Task CreateExpensesList(UserExpensesListModel model)
-        {
-            if (model is null || string.IsNullOrEmpty(model.Name))
-                throw new BusinessException("Expenses list cannot be empty.", 404);
-
-            var result = _mapper.Map<UserExpensesList>(model);
-
-            await _expensesListModule.CreateExpensesList(result);
-        }
-
-        public async Task UpdateExpensesList(UserExpensesListModel model, int id)
-        {
-            if (model is null || string.IsNullOrEmpty(model.Name))
-                throw new BusinessException("Expenses list cannot be empty.", 404);
-
-            var result = _mapper.Map<UserExpensesList>(model);
-
-            await _expensesListModule.UpdateExpensesList(result, id);
-        }
-
-        public async Task DeleteExpensesList(int id)
-        {
-            await _expensesListModule.DeleteExpensesList(id);
         }
     }
 }

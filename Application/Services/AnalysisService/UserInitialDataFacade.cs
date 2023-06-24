@@ -1,6 +1,6 @@
 ﻿using Application.Dto.Models.ExpensesList;
 using Application.IServices.AnalysisService;
-using Application.IServices.ExpensesList;
+using Application.IServices.ExpensesList.Queries;
 
 namespace Application.Services.AnalysisService
 {
@@ -8,9 +8,9 @@ namespace Application.Services.AnalysisService
     {
         private readonly IUserExpensesAnalysisService _analysisService;
 
-        private readonly IExpensesListService _expensesListService;
+        private readonly IExpensesListServiceQuery _expensesListService;
 
-        public UserInitialDataFacade(IUserExpensesAnalysisService userExpensesAnalysisService, IExpensesListService expensesListService)
+        public UserInitialDataFacade(IUserExpensesAnalysisService userExpensesAnalysisService, IExpensesListServiceQuery expensesListService)
         {
             _analysisService = userExpensesAnalysisService;
             _expensesListService = expensesListService;

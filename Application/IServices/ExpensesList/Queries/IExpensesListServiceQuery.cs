@@ -3,9 +3,9 @@ using Application.Dto.Models.ExpensesList;
 using Application.Dto.Models.Helpers;
 using Domain.ValueObjects;
 
-namespace Application.IServices.ExpensesList
+namespace Application.IServices.ExpensesList.Queries
 {
-    public interface IExpensesListService
+    public interface IExpensesListServiceQuery
     {
         IEnumerable<string> GetCategories();
 
@@ -15,12 +15,8 @@ namespace Application.IServices.ExpensesList
 
         Task<IEnumerable<UserExpensesDto>> GetExpensesByDate(DateTimeWithIdRequestModel request);
 
+        Task<IEnumerable<UserExpensesDto>> GetExpenses(int id, int? page, int? pagesize, CancellationToken token);
+
         Task<IEnumerable<DateComparer>> GetExpensesByDate(ExtendedDateTimeRequestModel request);
-
-        Task CreateExpensesList(UserExpensesListModel model);
-
-        Task UpdateExpensesList(UserExpensesListModel model, int id);
-
-        Task DeleteExpensesList(int id);
     }
 }

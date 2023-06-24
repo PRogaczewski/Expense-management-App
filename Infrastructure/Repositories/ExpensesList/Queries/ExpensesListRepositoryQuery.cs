@@ -2,25 +2,20 @@
 using Domain.Categories;
 using Domain.Entities.Models;
 using Domain.Modules;
+using Domain.Modules.Queries;
 using Domain.ValueObjects;
 using Infrastructure.EF.Database;
-using Infrastructure.SeedData.Service;
 using Microsoft.EntityFrameworkCore;
 
-namespace Infrastructure.EF.Repositories.ExpensesList
+namespace Infrastructure.EF.Repositories.ExpensesList.Queries
 {
-    public class ExpensesListRepository : ICategoryService, IExpensesListModule
+    public class ExpensesListRepositoryQuery : DatabaseModule, ICategoryService, IExpensesListModuleQuery
     {
-        private readonly ExpenseDbContext _context;
-
-        private readonly IExpensesSeeder _seeder;
-
         private readonly IUserContextModule _userContext;
 
-        public ExpensesListRepository(ExpenseDbContext context, IExpensesSeeder seeder, IUserContextModule userContext)
+        public ExpensesListRepositoryQuery(ExpenseDbContext context, IUserContextModule userContext)
         {
             _context = context;
-            _seeder = seeder;
             _userContext = userContext;
         }
 
@@ -28,8 +23,6 @@ namespace Infrastructure.EF.Repositories.ExpensesList
         {
             return ((ICategoryService)this).GetExpenseCategories();
         }
-
-        #region Query
 
         public async Task<IEnumerable<UserExpensesList>> GetExpensesLists()
         {
@@ -106,8 +99,7 @@ namespace Infrastructure.EF.Repositories.ExpensesList
                  .Include(e => e.Expenses
                  .Where(x => (string.IsNullOrEmpty(request.Year) || x.CreatedDate.Year.ToString() == request.Year)
                  && (string.IsNullOrEmpty(request.Month) || x.CreatedDate.Month.ToString() == request.Month))
-                 .OrderByDescending(o => o.CreatedDate.Year)
-                 .ThenByDescending(o => o.CreatedDate.Month))
+                 .OrderByDescending(o => o.CreatedDate))
                  .FirstOrDefaultAsync(e => e.Id == request.Id
                  && e.UserApplicationId == userId);
 
@@ -115,6 +107,30 @@ namespace Infrastructure.EF.Repositories.ExpensesList
                 throw new NotFoundException("Expenses list not found.");
 
             return model;
+        }
+
+        public async Task<IEnumerable<UserExpense>> GetExpenses(int id, int? page, int? pagesize, CancellationToken token)
+        {
+            var pageNo = page ?? 0;
+            var elemets = pagesize ?? 30;
+
+            var userId = _userContext.GetUserId();
+
+            if (userId == null)
+                throw new NotFoundException("User not found.");
+
+            var model = await _context.ExpensesLists
+                 .Include(e => e.Expenses
+                 .OrderByDescending(o => o.CreatedDate)
+                 .Skip(pageNo * elemets)
+                 .Take(elemets))
+                 .FirstOrDefaultAsync(e => e.Id == id
+                 && e.UserApplicationId == userId, token);
+
+            if (model is null)
+                throw new NotFoundException("Expenses list not found.");
+
+            return model.Expenses;
         }
 
         public async Task<UserExpensesList> GetExpensesByDate(ExtendedDateTimeRequestModel request)
@@ -131,81 +147,11 @@ namespace Infrastructure.EF.Repositories.ExpensesList
                  (string.IsNullOrEmpty(request.SecondYear) || e.CreatedDate.Year.ToString() == request.SecondYear)
                  && (string.IsNullOrEmpty(request.SecondMonth) || e.CreatedDate.Month.ToString() == request.SecondMonth)))
                 .FirstOrDefaultAsync(e => e.Id == request.Id && e.UserApplicationId == userId);
-            //.Where(e => e.CreatedDate.Year.ToString() == request.Year
-            //&& e.CreatedDate.Month.ToString() == request.Month ||
-            //e.CreatedDate.Year.ToString() == request.SecondYear && e.CreatedDate.Month.ToString() == request.SecondMonth))
 
             if (model is null)
                 throw new NotFoundException("Expenses not found.");
 
             return model;
         }
-
-        #endregion
-
-        #region Command
-
-        public async Task CreateExpensesList(UserExpensesList model)
-        {
-            var userId = _userContext.GetUserId();
-
-            if (userId == null)
-                throw new NotFoundException("User not found.");
-
-            if (_context.ExpensesLists.Any(e => e.Name == model.Name && e.UserApplicationId == userId))
-                throw new BusinessException("List with the same name already exists.", 409);
-
-            if (model.Name.ToLower().Contains("seeder"))
-            {
-                model = _seeder.Seed(model.Name);
-            }
-
-            model.CreatedDate = DateTime.Now;
-            model.UserApplicationId = userId.Value;
-
-            await _context.ExpensesLists.AddAsync(model);
-            await _context.SaveChangesAsync();
-        }
-
-        public async Task UpdateExpensesList(UserExpensesList model, int id)
-        {
-            var editModel = _context.ExpensesLists
-                .Include(e => e.Expenses)
-                .FirstOrDefault(m => m.Id == id);
-
-            if (editModel is null)
-                throw new NotFoundException("User list not found.");
-
-            if ((await GetExpensesLists()).Any(e => e.Name == model.Name))
-                throw new BusinessException("List with this name exists.", 409);
-
-            var userId = _userContext.GetUserId();
-
-            if (userId == null || editModel.UserApplicationId != userId)
-                throw new BusinessException("Something went wrong...", 404);
-
-            editModel.Name = model.Name;
-            editModel.UpdateDate = DateTime.Now;
-
-            await _context.SaveChangesAsync();
-        }
-
-        public async Task DeleteExpensesList(int id)
-        {
-            var result = _context.ExpensesLists.First(e => e.Id == id);
-
-            if (result is null)
-                throw new NotFoundException("Expense list not found.");
-
-            var userId = _userContext.GetUserId();
-
-            if (userId == null || result.UserApplicationId != userId)
-                throw new NotFoundException("User not found.");
-
-            _context.Remove(result);
-            await _context.SaveChangesAsync();
-        }
-
-        #endregion
     }
 }

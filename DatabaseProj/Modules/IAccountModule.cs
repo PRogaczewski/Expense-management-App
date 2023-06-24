@@ -4,8 +4,8 @@ namespace Domain.Modules
 {
     public interface IAccountModule
     {
-        Task<bool> ChangePassword(ChangePasswordModel model);
+        ValueTask ChangePassword(ChangePasswordModel model);
 
-        Task<bool> DeleteAccount();
+        ValueTask DeleteAccount();
     }
 }

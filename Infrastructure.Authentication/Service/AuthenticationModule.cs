@@ -1,5 +1,4 @@
-﻿using Application.Authentication.IServices;
-using Application.Exceptions;
+﻿using Application.Exceptions;
 using Domain.Entities.Models;
 using Domain.Modules;
 using Infrastructure.EF.Database;
@@ -8,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Authentication.Service
 {
-    public class AuthenticationModule : IAuthenticationModule
+    public class AuthenticationModule : IAuthenticationModule<UserApplication>
     {
         private readonly ExpenseDbContext _context;
 

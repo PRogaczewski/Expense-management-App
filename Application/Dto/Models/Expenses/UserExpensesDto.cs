@@ -6,6 +6,8 @@ namespace Application.Dto.Models.Expenses
     {
         public int Id { get; set; }
 
+        public string Name { get; set; }
+
         public ExpenseCategories Category { get; set; }
 
         public decimal Price { get; set; }

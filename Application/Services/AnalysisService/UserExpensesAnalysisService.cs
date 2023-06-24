@@ -3,8 +3,8 @@ using Application.Dto.Models.ExpensesList;
 using Application.Dto.Models.Helpers;
 using Application.Exceptions;
 using Application.IServices.AnalysisService;
-using Application.IServices.Expenses;
-using Application.IServices.ExpensesList;
+using Application.IServices.Expenses.Queries;
+using Application.IServices.ExpensesList.Queries;
 using Domain.Categories;
 using Domain.ValueObjects;
 
@@ -12,11 +12,11 @@ namespace Application.Services.AnalysisService
 {
     public class UserExpensesAnalysisService : IUserExpensesAnalysisService
     {
-        private readonly IExpensesListService _expensesListService;
+        private readonly IExpensesListServiceQuery _expensesListService;
 
-        private readonly IExpensesService _expensesService;
+        private readonly IExpensesServiceQuery _expensesService;
 
-        public UserExpensesAnalysisService(IExpensesListService expensesListService, IExpensesService expensesService)
+        public UserExpensesAnalysisService(IExpensesListServiceQuery expensesListService, IExpensesServiceQuery expensesService)
         {
             _expensesListService = expensesListService;
             _expensesService = expensesService;
@@ -29,13 +29,16 @@ namespace Application.Services.AnalysisService
 
             if (model == null)
             {
-                model = await _expensesListService.GetExpensesList(id);
+                throw new NoModelProvidedException("Required model not found");
             }
 
             var models = model.Expenses
                .Where(e => e.CreatedDate >= dates.begin && e.CreatedDate <= dates.end);
 
-            return ExpensesByCategory(id, models);
+            return await Task.Run(() =>
+            {
+                return ExpensesByCategory(id, models);
+            });           
         }
 
         public async ValueTask<IDictionary<string, decimal>> ExpensesByCategoryCurrentWeek(int id, string year, string month)
@@ -53,13 +56,16 @@ namespace Application.Services.AnalysisService
         {
             if (model == null)
             {
-                model = await _expensesListService.GetExpensesList(id);
+                throw new NoModelProvidedException("Required model not found");
             }
 
             var models = model.Expenses
                 .Where(e => e.CreatedDate.Year.ToString() == year && e.CreatedDate.Month.ToString() == month);
 
-            return ExpensesByCategory(id, models);
+            return await Task.Run(() =>
+            {
+                return ExpensesByCategory(id, models);
+            });     
         }
 
         public async ValueTask<IDictionary<string, decimal>> ExpensesByCategoryMonth(int id, string year, string month)
@@ -73,13 +79,16 @@ namespace Application.Services.AnalysisService
         {
             if (model == null)
             {
-                model = await _expensesListService.GetExpensesList(id);
+                throw new NoModelProvidedException("Required model not found");
             }
 
             var models = model.Expenses
                     .Where(e => e.CreatedDate.Year.ToString() == year);
 
-            return ExpensesByCategory(id, models);
+            return await Task.Run(() =>
+            {
+                return ExpensesByCategory(id, models);
+            });       
         }
 
         public async ValueTask<IDictionary<string, decimal>> ExpensesByCategoryYear(int id, string year)
@@ -93,7 +102,7 @@ namespace Application.Services.AnalysisService
         {
             if (model == null)
             {
-                throw new NoModelProvidedException("Required model not found"); //testing
+                throw new NoModelProvidedException("Required model not found");
             }
 
             var models = await Task.Run (() =>
@@ -115,7 +124,7 @@ namespace Application.Services.AnalysisService
         {
             if (model == null)
             {
-                model = await _expensesListService.GetExpensesList(id);
+                throw new NoModelProvidedException("Required model not found");
             }
 
             var firstMonthModels = model.Expenses
@@ -127,7 +136,10 @@ namespace Application.Services.AnalysisService
             var firstMonthResult = ExpensesByCategory(id, firstMonthModels);
             var secondMonthResult = ExpensesByCategory(id, secondMonthModels);
 
-            return CompareByCategory(firstMonthResult, secondMonthResult);
+            return await Task.Run(() =>
+            {
+                return CompareByCategory(firstMonthResult, secondMonthResult);
+            });          
         }
 
         public async ValueTask<IDictionary<string, decimal>> CompareByCategoryMonth(int id, string firstYear, string secondYear, string firstMonth, string secondMonth)
@@ -153,7 +165,7 @@ namespace Application.Services.AnalysisService
         {
             if (model == null)
             {
-                model = await _expensesListService.GetExpensesList(id);
+                throw new NoModelProvidedException("Required model not found");
             }
 
             var firstYearModels = model.Expenses
@@ -165,7 +177,10 @@ namespace Application.Services.AnalysisService
             var firstYearResult = ExpensesByCategory(id, firstYearModels);
             var secondYearResult = ExpensesByCategory(id, secondYearModels);
 
-            return CompareByCategory(firstYearResult, secondYearResult);
+            return await Task.Run(() =>
+            {
+                return CompareByCategory(firstYearResult, secondYearResult);
+            });         
         }
 
         public async ValueTask<IDictionary<string, decimal>> CompareByCategoryYear(int id, string firstYear, string secondYear)
@@ -193,7 +208,7 @@ namespace Application.Services.AnalysisService
 
             if (model == null)
             {
-                model = await _expensesListService.GetExpensesList(id);
+                throw new NoModelProvidedException("Required model not found");
             }
 
             var currentGoals = model.UserGoals
@@ -250,7 +265,7 @@ namespace Application.Services.AnalysisService
         {
             if (model == null)
             {
-                throw new NoModelProvidedException("Required model not found"); //testing
+                throw new NoModelProvidedException("Required model not found");
             }
 
             var income = model.UserIncomes
@@ -268,7 +283,7 @@ namespace Application.Services.AnalysisService
         {
             if (model == null)
             {
-                throw new NoModelProvidedException("Required model not found"); //testing
+                throw new NoModelProvidedException("Required model not found");
             }
 
             var items = await Task.Run(() =>
@@ -291,13 +306,16 @@ namespace Application.Services.AnalysisService
         {
             if (model == null)
             {
-                model = await _expensesListService.GetExpensesList(id);
+                throw new NoModelProvidedException("Required model not found");
             }
 
             var items = model.Expenses
                .Where(e => e.CreatedDate.Year.ToString() == year);
 
-            return GetTotalPrice(items);
+            return await Task.Run(() =>
+            {
+                return GetTotalPrice(items);
+            });  
         }
 
         public async ValueTask<decimal> TotalExpensesYear(int id, string year)

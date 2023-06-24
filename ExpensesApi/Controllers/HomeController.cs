@@ -1,6 +1,7 @@
 using Application.Dto.Models.ExpensesList;
 using Application.Exceptions;
-using Application.IServices.ExpensesList;
+using Application.IServices.ExpensesList.Commands;
+using Application.IServices.ExpensesList.Queries;
 using AutoMapper;
 using ExpensesApi.Models.ErrorHandlers;
 using ExpensesApi.Models.ViewModels;
@@ -14,20 +15,23 @@ namespace ExpensesApi.Controllers
     [Route("[controller]")]
     public class HomeController : ControllerBase
     {
-        private readonly IExpensesListService _expensesListService;
+        private readonly IExpensesListServiceQuery _expensesListServiceQuery;
+
+        private readonly IExpensesListServiceCommand _expensesListServiceCommand;
 
         private readonly IMapper _mapper;
 
-        public HomeController(IExpensesListService expensesListService, IMapper mapper)
+        public HomeController(IExpensesListServiceQuery expensesListService, IMapper mapper, IExpensesListServiceCommand expensesListServiceCommand)
         {
-            _expensesListService = expensesListService;
+            _expensesListServiceQuery = expensesListService;
             _mapper = mapper;
+            _expensesListServiceCommand = expensesListServiceCommand;
         }
 
         [HttpGet("GetCategories")]
         public ActionResult<IEnumerable<string>> GetEnum()
         {
-            var enums = _expensesListService.GetCategories();
+            var enums = _expensesListServiceQuery.GetCategories();
 
             return Ok(enums);
         }
@@ -37,7 +41,7 @@ namespace ExpensesApi.Controllers
         {
             try
             {
-                var expensesLists = await _expensesListService.GetExpensesLists();
+                var expensesLists = await _expensesListServiceQuery.GetExpensesLists();
 
                 var result = new UserExpensesListViewModel();
                 result.UserLists = _mapper.Map<List<UserExpensesListModelViewModel>>(expensesLists);
@@ -60,7 +64,7 @@ namespace ExpensesApi.Controllers
         {
             try
             {
-                var expensesList = await _expensesListService.GetExpensesList(id);
+                var expensesList = await _expensesListServiceQuery.GetExpensesList(id);
 
                 var result = _mapper.Map<UserExpensesListModelViewModel>(expensesList);
 
@@ -83,7 +87,7 @@ namespace ExpensesApi.Controllers
         {
             try
             {
-                await _expensesListService.CreateExpensesList(model);
+                await _expensesListServiceCommand.CreateExpensesList(model);
 
                 return Ok();
             }
@@ -98,7 +102,7 @@ namespace ExpensesApi.Controllers
         {
             try
             {
-                await _expensesListService.UpdateExpensesList(model, id);
+                await _expensesListServiceCommand.UpdateExpensesList(model, id);
 
                 return Ok();
             }
@@ -117,7 +121,7 @@ namespace ExpensesApi.Controllers
         {
             try
             {
-                await _expensesListService.DeleteExpensesList(id);
+                await _expensesListServiceCommand.DeleteExpensesList(id);
 
                 return Ok();
             }
