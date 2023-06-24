@@ -4,8 +4,8 @@ namespace Application.Authentication.IServices
 {
     public interface IAccountService
     {
-        Task<bool> ChangePassword(ChangePasswordRequest model);
+        ValueTask ChangePassword(ChangePasswordRequest model);
 
-        Task<bool> DeleteAccount();
+        ValueTask DeleteAccount();
     }
 }

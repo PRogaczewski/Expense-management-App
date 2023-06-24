@@ -13,7 +13,7 @@ namespace Application.Authentication.Services
 {
     public class AuthenticationService : IAuthenticationService
     {
-        private IAuthenticationModule _authenticationModule;
+        private IAuthenticationModule<UserApplication> _authenticationModule;
 
         private readonly WebToken _webToken;
 
@@ -21,7 +21,7 @@ namespace Application.Authentication.Services
 
         private readonly IMapper _mapper;
 
-        public AuthenticationService(IAuthenticationModule authenticationModule, IMapper mapper, IOptions<WebToken> webToken, IAuthenticationManagerService<UserApplication> authenticationManager)
+        public AuthenticationService(IAuthenticationModule<UserApplication> authenticationModule, IMapper mapper, IOptions<WebToken> webToken, IAuthenticationManagerService<UserApplication> authenticationManager)
         {
             _authenticationModule = authenticationModule;
             _mapper = mapper;

@@ -1,9 +1,9 @@
 ﻿using Domain.Entities.Models;
 using Domain.ValueObjects;
 
-namespace Domain.Modules
+namespace Domain.Modules.Queries
 {
-    public interface IExpensesListModule
+    public interface IExpensesListModuleQuery
     {
         /// <summary>
         /// Get all available categories
@@ -45,23 +45,6 @@ namespace Domain.Modules
         /// <returns></returns>
         Task<UserExpensesList> GetExpensesByDate(ExtendedDateTimeRequestModel request);
 
-        /// <summary>
-        /// Create new expenses list
-        /// </summary>
-        /// <param name="model"></param>
-        Task CreateExpensesList(UserExpensesList model);
-
-        /// <summary>
-        /// Update exisitng expenses list
-        /// </summary>
-        /// <param name="model"></param>
-        /// <param name="id"></param>
-        Task UpdateExpensesList(UserExpensesList model, int id);
-
-        /// <summary>
-        /// Delete current expenses list
-        /// </summary>
-        /// <param name="id"></param>
-        Task DeleteExpensesList(int id);
+        Task<IEnumerable<UserExpense>> GetExpenses(int id, int? page, int? pagesize, CancellationToken token);
     }
 }

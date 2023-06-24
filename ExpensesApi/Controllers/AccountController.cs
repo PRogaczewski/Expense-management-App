@@ -25,9 +25,9 @@ namespace ExpensesApi.Controllers
 
             try
             {
-                var result = await _accountService.ChangePassword(model);
+                await _accountService.ChangePassword(model);
 
-                return Ok(result);
+                return Ok();
             }
             catch (Exception ex)
             {
@@ -40,9 +40,9 @@ namespace ExpensesApi.Controllers
         {
             try
             {
-                var result = await _accountService.DeleteAccount();
+                await _accountService.DeleteAccount();
 
-                return Ok(result);
+                return Ok();
             }
             catch (Exception ex)
             {

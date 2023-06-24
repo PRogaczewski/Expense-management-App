@@ -1,5 +1,4 @@
-﻿using Application.Authentication.IServices;
-using Domain.Entities.Models;
+﻿using Domain.Entities.Models;
 using Domain.Modules;
 using Infrastructure.Authentication.Service;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -16,7 +15,7 @@ namespace Infrastructure.Authentication
         public static IServiceCollection InfrastructureAuthenticationRegistrationService(this IServiceCollection services, IConfiguration configuration)
         {
             services.AddTransient<IAuthenticationManagerService<UserApplication>, AuthenticationManagerService>();
-            services.AddTransient<IAuthenticationModule, AuthenticationModule>();
+            services.AddTransient<IAuthenticationModule<UserApplication>, AuthenticationModule>();
             services.AddTransient<IAccountModule, AccountModule>();
             services.AddScoped<IUserContextModule, UserContextService>();
             services.AddScoped<IPasswordHasher<UserApplication>, PasswordHasher<UserApplication>>();

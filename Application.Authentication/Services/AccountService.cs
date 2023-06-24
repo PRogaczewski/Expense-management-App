@@ -17,16 +17,16 @@ namespace Application.Authentication.IServices
             _mapper = mapper;
         }
 
-        public async Task<bool> ChangePassword(ChangePasswordRequest model)
+        public async ValueTask ChangePassword(ChangePasswordRequest model)
         {
             var request = _mapper.Map<ChangePasswordModel>(model);
 
-            return await _accountModule.ChangePassword(request);
+            await _accountModule.ChangePassword(request);
         }
 
-        public async Task<bool> DeleteAccount()
+        public async ValueTask DeleteAccount()
         {
-           return await _accountModule.DeleteAccount();
+           await _accountModule.DeleteAccount();
         }
     }
 }
