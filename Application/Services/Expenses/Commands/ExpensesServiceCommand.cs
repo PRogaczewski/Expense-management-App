@@ -29,6 +29,18 @@ namespace Application.Services.Expenses.Commands
             await _expensesModule.CreateExpense(result);
         }
 
+        public async Task UpdateExpense(UserExpensesModel model, int id)
+        {
+            var result = _mapper.Map<UserExpense>(model);
+
+            await _expensesModule.UpdateExpense(result, id);
+        }
+
+        public async Task DeleteExpense(int id)
+        {
+            await _expensesModule.DeleteExpense(id);
+        }
+
         public async Task CreateExpensesGoal(UserExpenseGoalDto model)
         {
             if (model is null || model.UserCategoryGoals is null)

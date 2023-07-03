@@ -15,8 +15,6 @@ namespace Application.IServices.ExpensesList.Queries
 
         Task<IEnumerable<UserExpensesDto>> GetExpensesByDate(DateTimeWithIdRequestModel request);
 
-        Task<IEnumerable<UserExpensesDto>> GetExpenses(int id, int? page, int? pagesize, CancellationToken token);
-
         Task<IEnumerable<DateComparer>> GetExpensesByDate(ExtendedDateTimeRequestModel request);
     }
 }

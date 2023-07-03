@@ -15,6 +15,9 @@ namespace Domain.Entities.Models
         [Required]
         public decimal Price { get; set; }
 
+        [Required]
         public DateTime CreatedDate { get; set; }
+
+        public DateTime? UpdateDate { get; set; }
     }
 }

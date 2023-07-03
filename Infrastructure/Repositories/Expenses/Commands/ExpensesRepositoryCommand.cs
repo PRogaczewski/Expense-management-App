@@ -13,9 +13,8 @@ namespace Infrastructure.EF.Repositories.Expenses.Commands
     {
         private readonly IMapper _mapper;
 
-        public ExpensesRepositoryCommand(ExpenseDbContext context, IMapper mapper)
+        public ExpensesRepositoryCommand(ExpenseDbContext context, IMapper mapper) : base(context)
         {
-            _context = context;
             _mapper = mapper;
         }
 
@@ -57,6 +56,32 @@ namespace Infrastructure.EF.Repositories.Expenses.Commands
             }
         }
 
+        public async Task UpdateExpense(UserExpense model, int id)
+        {
+            var expense = await _context.Expenses.FirstOrDefaultAsync(e => e.Id == id);
+
+            if (expense is null)
+                throw new NotFoundException("Expense not found.");
+
+            expense.Name = model.Name;
+            expense.Price = model.Price;
+            expense.Category = model.Category;
+            expense.UpdateDate = DateTime.Now;           
+
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task DeleteExpense(int id)
+        {
+            var expense = await _context.Expenses.FirstOrDefaultAsync(e => e.Id == id);
+
+            if (expense is null)
+                throw new NotFoundException("Expense not found.");
+
+            _context.Expenses.Remove(expense);
+            await _context.SaveChangesAsync();
+        }
+
         public async Task AddMonthlyIncome(UserIncome income)
         {
             var currentMonthIncomes = await _context.UserIncomes.FirstOrDefaultAsync(u => u.UserExpensesListId == income.UserExpensesListId && u.CreatedDate.Month == DateTime.Now.Month);
@@ -90,7 +115,7 @@ namespace Infrastructure.EF.Repositories.Expenses.Commands
             }
         }
 
-        public async Task<bool> UpdateExpensesGoal(UserExpenseGoal model)
+        public async Task UpdateExpensesGoal(UserExpenseGoal model)
         {
             throw new NotImplementedException();
         }

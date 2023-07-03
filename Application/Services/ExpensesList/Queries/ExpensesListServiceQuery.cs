@@ -52,15 +52,6 @@ namespace Application.Services.ExpensesList.Queries
             return result;
         }
 
-        public async Task<IEnumerable<UserExpensesDto>> GetExpenses(int id, int? page, int? pagesize, CancellationToken token)
-        {
-            var userExpensesList = await _expensesListModule.GetExpenses(id, page, pagesize, token);
-
-            var result = _mapper.Map<IEnumerable<UserExpensesDto>>(userExpensesList);
-
-            return result;
-        }
-
         public async Task<IEnumerable<DateComparer>> GetExpensesByDate(ExtendedDateTimeRequestModel request)
         {
             var model = await _expensesListModule.GetExpensesByDate(request);

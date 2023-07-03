@@ -46,6 +46,7 @@ builder.Services.InfrastructureRegistrationService(builder.Configuration);
 builder.Services.InfrastructureAuthenticationRegistrationService(builder.Configuration);
 builder.Services.ApplicationAuthenticationRegistrationService(builder.Configuration);
 builder.Services.AddAutoMapper(typeof(HomeModelsMapper).Assembly);
+builder.Services.AddMemoryCache();
 
 builder.Services.AddCors(options =>
 {

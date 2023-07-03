@@ -22,7 +22,6 @@ namespace Application.Services.AnalysisService
 
             var incomes = await _analysisService.TotalIncomesMonth(DateTime.Now.Year.ToString(), DateTime.Now.Month.ToString(),model);
             var totalIncomes = await _analysisService.TotalIncomesMonth(DateTime.Now.Year.ToString(), string.Empty, model);
-            //var incomes = await _analysisService.TotalIncomesMonth(id, DateTime.Now.Year.ToString(), DateTime.Now.Month.ToString());
             var outgoings = await _analysisService.TotalExpensesMonth(id, DateTime.Now.Year.ToString(), DateTime.Now.Month.ToString(), model);
             var totalByCategories = (await _analysisService.ExpensesByCategoryMonth(id, DateTime.Now.Year.ToString(), DateTime.Now.Month.ToString(), model)).ToDictionary(k => k.Key, v => v.Value);
             var currentWeekByCategories = await _analysisService.ExpensesByCategoryCurrentWeek(id, DateTime.Now.Year.ToString(), DateTime.Now.Month.ToString(), model);

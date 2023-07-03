@@ -2,7 +2,6 @@
 using Domain.Entities.Models;
 using Domain.Modules;
 using Domain.Modules.Commands;
-using Domain.Modules.Queries;
 using Infrastructure.EF.Database;
 using Infrastructure.SeedData.Service;
 using Microsoft.EntityFrameworkCore;
@@ -15,14 +14,11 @@ namespace Infrastructure.EF.Repositories.ExpensesList.Commands
 
         private readonly IUserContextModule _userContext;
 
-        private readonly IExpensesListModuleQuery _expensesListModuleQuery;
-
-        public ExpensesListRepositoryCommand(ExpenseDbContext context, IExpensesSeeder seeder, IUserContextModule userContext, IExpensesListModuleQuery expensesListModuleQuery)
+        public ExpensesListRepositoryCommand(ExpenseDbContext context, IExpensesSeeder seeder, IUserContextModule userContext)
+            : base(context)
         {
-            _context = context;
             _seeder = seeder;
             _userContext = userContext;
-            _expensesListModuleQuery = expensesListModuleQuery;
         }
 
         public async Task CreateExpensesList(UserExpensesList model)
@@ -32,8 +28,11 @@ namespace Infrastructure.EF.Repositories.ExpensesList.Commands
             if (userId == null)
                 throw new NotFoundException("User not found.");
 
-            if (_context.ExpensesLists.Any(e => e.Name == model.Name && e.UserApplicationId == userId))
+            if (await _context.ExpensesLists.AnyAsync(e => e.Name == model.Name && e.UserApplicationId == userId))
                 throw new BusinessException("List with the same name already exists.", 409);
+
+            if (_context.ExpensesLists.Where(e => e.UserApplicationId == userId).Count() == 5)
+                throw new BusinessException("You may have up to five lists.", 400);
 
             if (model.Name.ToLower().Contains("seeder"))
             {
@@ -49,14 +48,14 @@ namespace Infrastructure.EF.Repositories.ExpensesList.Commands
 
         public async Task UpdateExpensesList(UserExpensesList model, int id)
         {
-            var editModel = _context.ExpensesLists
+            var editModel = await _context.ExpensesLists
                 .Include(e => e.Expenses)
-                .FirstOrDefault(m => m.Id == id);
+                .FirstOrDefaultAsync(m => m.Id == id);
 
             if (editModel is null)
                 throw new NotFoundException("User list not found.");
 
-            if ((await _expensesListModuleQuery.GetExpensesLists()).Any(e => e.Name == model.Name))
+            if (await _context.ExpensesLists.AnyAsync(e => e.Name == model.Name))
                 throw new BusinessException("List with this name exists.", 409);
 
             var userId = _userContext.GetUserId();

@@ -44,7 +44,5 @@ namespace Domain.Modules.Queries
         /// <param name="request"></param>
         /// <returns></returns>
         Task<UserExpensesList> GetExpensesByDate(ExtendedDateTimeRequestModel request);
-
-        Task<IEnumerable<UserExpense>> GetExpenses(int id, int? page, int? pagesize, CancellationToken token);
     }
 }

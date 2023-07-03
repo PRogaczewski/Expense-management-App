@@ -14,7 +14,7 @@ namespace ExpensesApi.Models.Mapper.ExpensesList
 
             CreateMap<UserExpensesListDtoModel, UserExpensesListModelViewModel>();
 
-            CreateMap<UserExpensesDto, UserExpensesViewModel>()
+            CreateMap<UserExpensesDto, UserExpenseDetailsViewModel>()
                 .ForMember(u => u.Category, e => e.MapFrom(o => o.Category.GetEnumDisplayName()));
         }
     }

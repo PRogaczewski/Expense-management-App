@@ -20,7 +20,10 @@ namespace Infrastructure.EF
             {
                 builder.EnableRetryOnFailure(3, TimeSpan.FromSeconds(5), null);
             }));
-            services.AddTransient<IExpensesModuleQuery, ExpensesRepositoryQuery>();
+            services.AddTransient<ExpensesRepositoryQuery>();
+            services.AddTransient<IExpensesModuleQuery, CachedExpensesRepositoryQuery>();
+
+            //services.AddTransient<IExpensesModuleQuery, ExpensesRepositoryQuery>();
             services.AddTransient<IExpensesModuleCommand, ExpensesRepositoryCommand>();
             services.AddTransient<IExpensesListModuleQuery, ExpensesListRepositoryQuery>();
             services.AddTransient<IExpensesListModuleCommand, ExpensesListRepositoryCommand>();
