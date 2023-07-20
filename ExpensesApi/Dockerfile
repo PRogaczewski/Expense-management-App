@@ -12,6 +12,8 @@ COPY ["DatabaseProj/Domain.csproj", "DatabaseProj/"]
 COPY ["Application/Application.csproj", "Application/"]
 COPY ["Infrastructure/Infrastructure.EF.csproj", "Infrastructure/"]
 COPY ["SeedData/Infrastructure.SeedData.csproj", "SeedData/"]
+COPY ["Infrastructure.ExternalServices/Infrastructure.ExternalServices.csproj", "Infrastructure.ExternalServices/"]
+COPY ["Application.ExternalServices/Application.ExternalServices.csproj", "Application.ExternalServices/"]
 COPY ["Infrastructure.Dapper/Infrastructure.Dapper.csproj", "Infrastructure.Dapper/"]
 RUN dotnet restore "ExpensesApi/ExpensesApi.csproj"
 COPY . .

@@ -68,6 +68,9 @@ namespace Infrastructure.EF.Migrations
                     b.Property<decimal>("Price")
                         .HasColumnType("decimal(18,2)");
 
+                    b.Property<DateTime?>("UpdateDate")
+                        .HasColumnType("datetime2");
+
                     b.Property<int>("UserExpensesListId")
                         .HasColumnType("int");
 

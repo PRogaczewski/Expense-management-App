@@ -1,9 +1,11 @@
 ﻿using Domain.Entities.Base;
+using System.ComponentModel.DataAnnotations;
 
 namespace Domain.Entities.Models
 {
     public class UserExpensesList : BaseEntity
     {
+        [Required]
         public string Name { get; set; }
 
         public List<UserExpense> Expenses { get; set; } = new List<UserExpense>();
@@ -16,6 +18,7 @@ namespace Domain.Entities.Models
 
         public UserApplication UserApplication;
 
+        [Required]
         public DateTime CreatedDate { get; set; }
 
         public DateTime? UpdateDate { get; set; }

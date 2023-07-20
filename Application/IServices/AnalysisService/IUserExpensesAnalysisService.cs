@@ -40,6 +40,8 @@ namespace Application.IServices.AnalysisService
 
         ValueTask<IDictionary<string, decimal>> CompareByCategoryYear(int id, string firstYear, string secondYear);
 
-        ValueTask<IDictionary<string, decimal>[]> MonthlyGoals(int id, string year, string month, UserExpensesListDtoModel model = null);
+        ValueTask<IDictionary<string, decimal>[]> MonthlyGoals(int id, string year, string month, UserExpensesListDtoModel model);
+
+        ValueTask<IDictionary<string, decimal>[]> MonthlyGoals(int id, string year, string month);
     }
 }

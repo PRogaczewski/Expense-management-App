@@ -6,6 +6,10 @@ namespace Application.IServices.Expenses.Commands
     {
         Task CreateExpense(UserExpensesModel model);
 
+        Task UpdateExpense(UserExpensesModel model, int id);
+
+        Task DeleteExpense(int id);
+
         Task CreateExpensesGoal(UserExpenseGoalDto model);
 
         Task AddMonthlyIncome(UserIncomeModel income);

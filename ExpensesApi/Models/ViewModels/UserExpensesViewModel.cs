@@ -1,17 +1,20 @@
-﻿namespace ExpensesApi.Models.ViewModels
+﻿using Domain.Entities.Base;
+using Domain.ValueObjects;
+
+namespace ExpensesApi.Models.ViewModels
 {
     public class UserExpensesViewModel
     {
-        private UserExpensesViewModel() { }
+        private UserExpensesViewModel(PagedList<UserExpenseResponseDto> items)
+        {
+            Items = items;
+        }
 
-        public int Id { get; set; }
+        public PagedList<UserExpenseResponseDto> Items { get; set; }
 
-        public string Name { get; set; }
-
-        public string Category { get; set; }
-
-        public decimal Price { get; set; }
-
-        public DateTime CreatedDate { get; set; }
+        public static UserExpensesViewModel Create(PagedList<UserExpenseResponseDto> items)
+        {
+            return new(items);
+        }
     }
 }

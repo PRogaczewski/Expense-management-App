@@ -202,7 +202,7 @@ namespace Application.Services.AnalysisService
             return CompareByCategory(firstYearResult, secondYearResult);
         }
 
-        public async ValueTask<IDictionary<string, decimal>[]> MonthlyGoals(int id, string year, string month, UserExpensesListDtoModel model = null)
+        public async ValueTask<IDictionary<string, decimal>[]> MonthlyGoals(int id, string year, string month, UserExpensesListDtoModel model)
         {
             var currentDate = month + year;
 
@@ -210,6 +210,54 @@ namespace Application.Services.AnalysisService
             {
                 throw new NoModelProvidedException("Required model not found");
             }
+
+            var currentGoals = model.UserGoals
+                .Where(g => g.MonthChosenForGoal.Month.ToString() + g.MonthChosenForGoal.Year.ToString() == currentDate)
+                .Where(g => g.UserExpensesListId == id)
+                .ToList();
+
+            IDictionary<string, decimal> currentMonthGoal = new Dictionary<string, decimal>();
+
+            foreach (var goalsList in currentGoals)
+            {
+                foreach (var item in goalsList.UserCategoryGoals)
+                {
+                    if (currentMonthGoal.ContainsKey(item.Category.ToString()))
+                    {
+                        currentMonthGoal[item.Category.GetEnumDisplayName().ToString()] += item.Limit;
+                    }
+                    else
+                    {
+                        currentMonthGoal.Add(item.Category.GetEnumDisplayName().ToString(), item.Limit);
+                    }
+                }
+            }
+
+            var currentMonthExpenses = await ExpensesByCategoryMonth(id, year, month, model);
+            var categories = currentMonthGoal.Keys.Intersect(currentMonthExpenses.Keys).ToList();
+
+            IDictionary<string, decimal> currentMonthResult = new Dictionary<string, decimal>();
+            IDictionary<string, decimal> currentMonthGoalExpenses = new Dictionary<string, decimal>();
+            IDictionary<string, decimal> currentMonthResultPercentage = new Dictionary<string, decimal>();
+
+            foreach (var category in categories)
+            {
+                if (currentMonthGoal.TryGetValue(category, out var firstDecimal) && currentMonthExpenses.TryGetValue(category, out var secondDecimal))
+                {
+                    currentMonthGoalExpenses.Add(category, secondDecimal);
+                    currentMonthResult.Add(category, decimal.Round(firstDecimal - secondDecimal, 2));
+                    currentMonthResultPercentage.Add(category, decimal.Round(1 - (secondDecimal / firstDecimal) * 100, 2));
+                }
+            }
+
+            return new IDictionary<string, decimal>[] { currentMonthGoal, currentMonthGoalExpenses, currentMonthResult };
+        }
+
+        public async ValueTask<IDictionary<string, decimal>[]> MonthlyGoals(int id, string year, string month)
+        {
+            var currentDate = month + year;
+
+            var model = await _expensesListService.GetExpensesList(id);
 
             var currentGoals = model.UserGoals
                 .Where(g => g.MonthChosenForGoal.Month.ToString() + g.MonthChosenForGoal.Year.ToString() == currentDate)

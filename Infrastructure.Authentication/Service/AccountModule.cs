@@ -16,9 +16,9 @@ namespace Infrastructure.Authentication.Service
         private readonly IUserContextModule _userContext;
 
         public AccountModule(IAuthenticationManagerService<UserApplication> authenticationManager, ExpenseDbContext context, IPasswordHasher<UserApplication> passwordHasher, IUserContextModule userContext)
+            : base(context)
         {
             _authenticationManager = authenticationManager;
-            _context = context;
             _passwordHasher = passwordHasher;
             _userContext = userContext;
         }

@@ -7,11 +7,15 @@ namespace Domain.Modules.Commands
     {
         Task CreateExpense(UserExpense model);
 
+        Task UpdateExpense(UserExpense model, int id);
+
+        Task DeleteExpense(int id);
+
         Task CreateExpensesGoal(UserExpenseGoal model);
 
         Task DeleteExpensesGoal(DateTimeWithIdRequestModel id);
 
-        Task<bool> UpdateExpensesGoal(UserExpenseGoal model);
+        Task UpdateExpensesGoal(UserExpenseGoal model);
 
         Task AddMonthlyIncome(UserIncome income);
     }

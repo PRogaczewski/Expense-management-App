@@ -1,11 +1,11 @@
-﻿using Application.Dto.Models.Expenses;
+﻿using Application.Dto.Models;
+using Application.Dto.Models.Expenses;
 using Application.Exceptions;
 using Application.IServices.AnalysisService;
 using Application.IServices.Expenses.Commands;
 using Application.IServices.Expenses.Queries;
-using Application.IServices.ExpensesList.Queries;
 using AutoMapper;
-using Domain.ValueObjects;
+using Domain.Entities.Base;
 using ExpensesApi.Models.ErrorHandlers;
 using ExpensesApi.Models.ViewModels;
 using Microsoft.AspNetCore.Authorization;
@@ -20,7 +20,7 @@ namespace ExpensesApi.Controllers
     {
         private readonly IExpensesServiceCommand _serviceCommand;
 
-        private readonly IExpensesListServiceQuery _expensesListService;
+        private readonly IExpensesServiceQuery _serviceQuery;
 
         private readonly IUserExpensesAnalysisService _analysisService;
 
@@ -28,13 +28,13 @@ namespace ExpensesApi.Controllers
 
         private readonly IMapper _mapper;
 
-        public ExpensesListController(IUserExpensesAnalysisService analysisService, IUserInitialData userInitialData, IMapper mapper, IExpensesServiceCommand serviceCommand, IExpensesListServiceQuery expensesListService)
+        public ExpensesListController(IUserExpensesAnalysisService analysisService, IUserInitialData userInitialData, IMapper mapper, IExpensesServiceCommand serviceCommand, IExpensesServiceQuery serviceQuery)
         {
             _analysisService = analysisService;
             _userInitialData = userInitialData;
             _mapper = mapper;
             _serviceCommand = serviceCommand;
-            _expensesListService = expensesListService;
+            _serviceQuery = serviceQuery;
         }
 
         [HttpGet("{id}")]
@@ -160,19 +160,40 @@ namespace ExpensesApi.Controllers
         }
 
         [HttpGet("Expenses")]
-        public async Task<ActionResult<IEnumerable<UserExpensesViewModel>>> GetExpenses(int id, int? page, int? pagesize, CancellationToken token)
+        public async Task<ActionResult<UserExpensesViewModel>> GetExpenses(int id, int? page, int? pagesize, string? searchTerm, CancellationToken token, bool allRecords = false)
         {
             try
             {
-                var model = await _expensesListService.GetExpenses(id, page, pagesize, token);
+                var response = await _serviceQuery.GetExpenses(id, page, pagesize, searchTerm, allRecords, token);
 
-                var result = _mapper.Map<IEnumerable<UserExpensesViewModel>>(model).ToList();
+                var result = UserExpensesViewModel.Create(response);
 
                 return Ok(result);
             }
             catch (Exception ex)
             {
                 return NotFound(new ErrorHandlerResponse(ex.Message)); ;
+            }
+        }
+
+        [HttpGet("Expenses/{id}")]
+        public async Task<ActionResult<UserExpenseDetailsViewModel>> GetExpense(int id)
+        {
+            try
+            {
+                var model = await _serviceQuery.GetExpense(id);
+
+                var result = _mapper.Map<UserExpenseDetailsViewModel>(model);
+
+                return Ok(result);
+            }
+            catch (NotFoundException ex)
+            {
+                return NotFound(new ErrorHandlerResponse(ex.Message)); ;
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ErrorHandlerResponse(ex.Message)); ;
             }
         }
 
@@ -190,6 +211,36 @@ namespace ExpensesApi.Controllers
                 return NotFound(new ErrorHandlerResponse(ex.Message));
             }
             
+        }
+
+        [HttpPut("Expenses/{id}")]
+        public async Task<ActionResult> Update(UserExpensesModel model, int id)
+        {
+            try
+            {
+                await _serviceCommand.UpdateExpense(model, id);
+
+                return Ok();
+            }
+            catch (NotFoundException ex)
+            {
+                return NotFound(new ErrorHandlerResponse(ex.Message));
+            }
+        }
+
+        [HttpDelete("Expenses/{id}")]
+        public async Task<ActionResult> Delete(int id)
+        {
+            try
+            {
+                await _serviceCommand.DeleteExpense(id);
+
+                return Ok();
+            }
+            catch (NotFoundException ex)
+            {
+                return NotFound(new ErrorHandlerResponse(ex.Message));
+            }
         }
 
         [HttpPost("ExpensesMonthlyGoal")]

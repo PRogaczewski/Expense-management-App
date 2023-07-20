@@ -13,9 +13,8 @@ namespace Infrastructure.EF.Repositories.ExpensesList.Queries
     {
         private readonly IUserContextModule _userContext;
 
-        public ExpensesListRepositoryQuery(ExpenseDbContext context, IUserContextModule userContext)
+        public ExpensesListRepositoryQuery(ExpenseDbContext context, IUserContextModule userContext) : base(context)
         {
-            _context = context;
             _userContext = userContext;
         }
 
@@ -107,30 +106,6 @@ namespace Infrastructure.EF.Repositories.ExpensesList.Queries
                 throw new NotFoundException("Expenses list not found.");
 
             return model;
-        }
-
-        public async Task<IEnumerable<UserExpense>> GetExpenses(int id, int? page, int? pagesize, CancellationToken token)
-        {
-            var pageNo = page ?? 0;
-            var elemets = pagesize ?? 30;
-
-            var userId = _userContext.GetUserId();
-
-            if (userId == null)
-                throw new NotFoundException("User not found.");
-
-            var model = await _context.ExpensesLists
-                 .Include(e => e.Expenses
-                 .OrderByDescending(o => o.CreatedDate)
-                 .Skip(pageNo * elemets)
-                 .Take(elemets))
-                 .FirstOrDefaultAsync(e => e.Id == id
-                 && e.UserApplicationId == userId, token);
-
-            if (model is null)
-                throw new NotFoundException("Expenses list not found.");
-
-            return model.Expenses;
         }
 
         public async Task<UserExpensesList> GetExpensesByDate(ExtendedDateTimeRequestModel request)

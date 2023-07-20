@@ -2,6 +2,7 @@
 using Application.Exceptions;
 using Application.IServices.Expenses.Queries;
 using AutoMapper;
+using Domain.Entities.Base;
 using Domain.Modules.Queries;
 using Domain.ValueObjects;
 
@@ -19,7 +20,7 @@ namespace Application.Services.Expenses.Queries
             _mapper = mapper;
         }
 
-        public async ValueTask<UserIncomeDto> GetMonthlyIncome(int id, string year, string month)
+        public async Task<UserIncomeDto> GetMonthlyIncome(int id, string year, string month)
         {
             if (int.Parse(year) < 1970 || int.Parse(year) > DateTime.Now.Year ||
                     int.Parse(month) < 1 || int.Parse(month) > 12)
@@ -37,6 +38,18 @@ namespace Application.Services.Expenses.Queries
                     Income = 0.0m,
                 };
             }
+
+            return result;
+        }
+
+        public async Task<UserExpensesDto> GetExpense(int id)
+        {
+            return _mapper.Map<UserExpensesDto>(await _expensesModule.GetExpense(id));
+        }
+
+        public async Task<PagedList<UserExpenseResponseDto>> GetExpenses(int id, int? page, int? pagesize, string? searchTerm, bool allRecords, CancellationToken token)
+        {
+            var result = await _expensesModule.GetExpenses(id, page, pagesize, searchTerm, allRecords, token);
 
             return result;
         }

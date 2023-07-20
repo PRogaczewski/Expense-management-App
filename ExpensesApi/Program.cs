@@ -1,8 +1,10 @@
 using Application;
 using Application.Authentication;
+using Application.ExternalServices;
 using ExpensesApi.Models.Mapper.Home;
 using Infrastructure.Authentication;
 using Infrastructure.EF;
+using Infrastructure.ExternalServices;
 using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -42,10 +44,13 @@ builder.Services.AddSwaggerGen(c =>
 builder.Configuration.AddJsonFile("appsettings.Docker.json", optional: true, reloadOnChange: true);
 
 builder.Services.ApplicationRegistrationService();
+builder.Services.ApplicationExternalServiceRegistrationService();
+builder.Services.InfrastructureExternalServiceRegistrationService();
 builder.Services.InfrastructureRegistrationService(builder.Configuration);
 builder.Services.InfrastructureAuthenticationRegistrationService(builder.Configuration);
 builder.Services.ApplicationAuthenticationRegistrationService(builder.Configuration);
 builder.Services.AddAutoMapper(typeof(HomeModelsMapper).Assembly);
+builder.Services.AddMemoryCache();
 
 builder.Services.AddCors(options =>
 {
