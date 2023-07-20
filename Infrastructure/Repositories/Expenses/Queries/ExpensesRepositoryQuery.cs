@@ -38,7 +38,7 @@ namespace Infrastructure.EF.Repositories.Expenses.Queries
             return expense;
         }
 
-        public async Task<PagedList<UserExpenseResponseDto>> GetExpenses(int id, int? page, int? pagesize, CancellationToken token)
+        public async Task<PagedList<UserExpenseResponseDto>> GetExpenses(int id, int? page, int? pagesize, string? searchTerm, bool allRecords, CancellationToken token)
         {
             var pageNo = page ?? 1;
             var elemets = pagesize ?? 30;
@@ -55,6 +55,36 @@ namespace Infrastructure.EF.Repositories.Expenses.Queries
             IQueryable<UserExpense> collection = _context.Expenses
                .Where(e => e.UserExpensesListId == id && e.UserExpensesList.UserApplicationId == userId);
 
+            if (!string.IsNullOrEmpty(searchTerm))
+            {
+                List<ExpenseCategories> searchedEnum = new List<ExpenseCategories>();
+
+                foreach (var item in Enum.GetValues<ExpenseCategories>())
+                {
+                    if(item.GetEnumDisplayName().ToLower().Contains(searchTerm))
+                    {
+                        searchedEnum.Add(item);
+                    }
+                }
+
+                if(searchedEnum.Any())
+                {
+                    collection = collection.Where(e =>
+                     e.Name.Contains(searchTerm) ||
+                     searchedEnum.Contains(e.Category));
+                }
+                else
+                {
+                    collection = collection.Where(e => e.Name.Contains(searchTerm));
+                }
+            }
+
+            if (allRecords)
+            {
+                pageNo = 1;
+                elemets = collection.Count();
+            }
+
             IQueryable<UserExpenseResponseDto> model = collection
                 .Select(x => new UserExpenseResponseDto()
                 {
@@ -63,7 +93,7 @@ namespace Infrastructure.EF.Repositories.Expenses.Queries
                     Category = x.Category.GetEnumDisplayName(),
                     Price = x.Price,
                     CreatedDate = x.CreatedDate,
-                }); 
+                });
 
             //var model = _context.ExpensesLists
             //     .Include(e => e.Expenses

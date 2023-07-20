@@ -10,7 +10,7 @@ services:
     restart: always
     environment:
       - ACCEPT_EULA=Y
-      - MSSQL_SA_PASSWORD=!strong_pass
+      - MSSQL_SA_PASSWORD=pass
       - MSSQL_PID=Developer
     ports:
       - "1433:1433" 
@@ -32,9 +32,21 @@ services:
     depends_on:
       - expensesdbdemo
     environment:
-      - ConnectionStrings__ExpenseDbString=Data Source=expensesdbdemo; Initial Catalog=ExpenseDb; Persist Security Info=True;User ID=sa;Password=!strong_pass
+      - ConnectionStrings__ExpenseDbString=Data Source=expensesdbdemo; Initial Catalog=ExpenseDb; Persist Security Info=True;User ID=sa;Password=pass
       - ASPNETCORE_HTTPS_PORT=443
       - ASPNETCORE_URLS=https://+:443;http://+:80
+    networks:
+      - expensesapp
+    
+  documentapi:
+    container_name: demo-document-api
+    image: ${DOCKER_REGISTRY-}document-api
+    build:
+      context: ./DocumentApi/DocumentApi
+      dockerfile: ./Dockerfile
+    ports:
+      - "5650:90"
+      - "5850:450"
     networks:
       - expensesapp
 

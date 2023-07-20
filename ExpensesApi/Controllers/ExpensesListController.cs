@@ -160,11 +160,11 @@ namespace ExpensesApi.Controllers
         }
 
         [HttpGet("Expenses")]
-        public async Task<ActionResult<UserExpensesViewModel>> GetExpenses(int id, int? page, int? pagesize, CancellationToken token)
+        public async Task<ActionResult<UserExpensesViewModel>> GetExpenses(int id, int? page, int? pagesize, string? searchTerm, CancellationToken token, bool allRecords = false)
         {
             try
             {
-                var response = await _serviceQuery.GetExpenses(id, page, pagesize, token);
+                var response = await _serviceQuery.GetExpenses(id, page, pagesize, searchTerm, allRecords, token);
 
                 var result = UserExpensesViewModel.Create(response);
 

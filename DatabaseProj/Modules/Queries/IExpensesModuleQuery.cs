@@ -10,6 +10,6 @@ namespace Domain.Modules.Queries
 
         Task<UserExpense> GetExpense(int id);
 
-        Task<PagedList<UserExpenseResponseDto>> GetExpenses(int id, int? page, int? pagesize, CancellationToken token);
+        Task<PagedList<UserExpenseResponseDto>> GetExpenses(int id, int? page, int? pagesize, string? searchTerm, bool allRecords, CancellationToken token);
     }
 }

@@ -46,17 +46,17 @@ namespace Infrastructure.EF.Repositories.Expenses.Queries
                 });
         }
 
-        public async Task<PagedList<UserExpenseResponseDto>> GetExpenses(int id, int? page, int? pagesize, CancellationToken token)
+        public async Task<PagedList<UserExpenseResponseDto>> GetExpenses(int id, int? page, int? pagesize, string? searchTerm, bool allRecords, CancellationToken token)
         {
-            string key = $"ExpensesPagedList-{id}&{page}&{pagesize}";
+            string key = $"ExpensesPagedList-{id}&{page}&{pagesize}&{searchTerm}";
 
             return await _memoryCache.GetOrCreateAsync(
                 key,
                 async entry =>
                 {
-                    entry.SetAbsoluteExpiration(TimeSpan.FromMinutes(10));
+                    entry.SetAbsoluteExpiration(TimeSpan.FromMinutes(2));
 
-                    return await _queryRepo.GetExpenses(id, page, pagesize, token);
+                    return await _queryRepo.GetExpenses(id, page, pagesize, searchTerm, allRecords, token);
                 });
         }
     }

@@ -47,9 +47,9 @@ namespace Application.Services.Expenses.Queries
             return _mapper.Map<UserExpensesDto>(await _expensesModule.GetExpense(id));
         }
 
-        public async Task<PagedList<UserExpenseResponseDto>> GetExpenses(int id, int? page, int? pagesize, CancellationToken token)
+        public async Task<PagedList<UserExpenseResponseDto>> GetExpenses(int id, int? page, int? pagesize, string? searchTerm, bool allRecords, CancellationToken token)
         {
-            var result = await _expensesModule.GetExpenses(id, page, pagesize, token);
+            var result = await _expensesModule.GetExpenses(id, page, pagesize, searchTerm, allRecords, token);
 
             return result;
         }
